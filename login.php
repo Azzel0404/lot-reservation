@@ -2,32 +2,33 @@
 <?php
 session_start();
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/LOT-RESERVATION-SYSTEM-main/includes/db.php';
+// Optional: ensures session cookie is valid across subfolders
+ini_set('session.cookie_path', '/');
 
-// Check if the user is already logged in
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lot-reservation/config/db.php';
+
+// ✅ Redirect if user is already logged in
 if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
-    // Redirect based on user role
     switch ($_SESSION['role']) {
         case 'ADMIN':
             header("Location: admin/index.php");
-            break;
+            exit();
         case 'AGENT':
             header("Location: agent/index.php");
-            break;
+            exit();
         case 'CLIENT':
-            header("Location: user/index.php");
-            break;
+            header("Location: client/index.php");
+            exit();
         default:
             header("Location: index.php");
-            break;
+            exit();
     }
-    exit();
 }
 
 // Initialize error message variable
 $errorMessage = '';
 
-// Process login form submission
+// ✅ Process login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -35,8 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($password)) {
         $errorMessage = 'Please enter both email and password.';
     } else {
-        require_once 'includes/config.php'; // Ensure this path is correct
-
         $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -45,28 +44,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result && $result->num_rows === 1) {
             $user = $result->fetch_assoc();
 
-            // Assuming passwords are hashed using password_hash()
             if (password_verify($password, $user['password'])) {
-                // Assign values to session variables
+                // ✅ Set session values
+                session_regenerate_id(true); // Prevent session fixation
+                $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
-                // Redirect based on role
+                // ✅ Redirect based on role
                 switch ($user['role']) {
                     case 'ADMIN':
                         header("Location: admin/index.php");
-                        break;
+                        exit();
                     case 'AGENT':
                         header("Location: agent/index.php");
-                        break;
+                        exit();
                     case 'CLIENT':
-                        header("Location: user/index.php");
-                        break;
+                        header("Location: client/index.php");
+                        exit();
                     default:
                         $errorMessage = 'Unknown role. Access denied.';
                         break;
                 }
-                exit();
             } else {
                 $errorMessage = 'Invalid credentials.';
             }
@@ -77,6 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,8 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header>
-        <h1>Login to Your Account</h1>
+    <header style="display: flex; align-items: center; justify-content: space-between;">
+        <a href="index.php" style="text-decoration: none;">
+            <button type="button">← Back to Home</button>
+        </a>
+        <h1 style="margin: 0 auto;">Login to Your Account</h1>
     </header>
 
     <section>

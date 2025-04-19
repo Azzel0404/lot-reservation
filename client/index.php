@@ -1,11 +1,7 @@
+<!--client/index.php-->
 <?php
 session_start();
-
-// Check if user is logged in and has the 'CLIENT' role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'CLIENT') {
-    header("Location: ../login.php");
-    exit;
-}
+ini_set('session.cookie_path', '/'); // optional but helps across directories
 ?>
 
 <!DOCTYPE html>

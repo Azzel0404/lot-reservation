@@ -1,3 +1,4 @@
+<!--this is /index.php-->
 <?php
 session_start();
 ?>
@@ -18,7 +19,7 @@ session_start();
                 <li><a href="#about">About</a></li>
                 <li><a href="#services">Services</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="login.php">Login</a></li>
+                <li><a href="/lot-reservation/login.php">Login</a></li>
             </ul>
         </nav>
     </header>

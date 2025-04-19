@@ -1,11 +1,5 @@
 <?php
 session_start();
-
-// Check if user is logged in and has the 'AGENT' role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'AGENT') {
-    header("Location: ../login.php");
-    exit;
-}
 ?>
 
 <!DOCTYPE html>

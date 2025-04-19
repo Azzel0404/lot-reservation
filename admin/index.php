@@ -1,11 +1,6 @@
+<!--../admin/index.php-->
 <?php
 session_start();
-
-// Check if user is logged in and has the 'ADMIN' role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'ADMIN') {
-    header("Location: ../login.php");
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
