@@ -9,9 +9,10 @@ ini_set('session.cookie_path', '/'); // optional but helps across directories
 <head>
     <title>Client Dashboard</title>
     <link rel="stylesheet" type="text/css" href="../css/styles.css">
-    <a href="../logout.php" class="logout-button">Logout</a>
 </head>
 <body>
+    <a href="../logout.php" class="logout-button">Logout</a>
+
     <h1>Welcome, Client</h1>
     <ul>
         <li><a href="available_lots.php">Reserve a Lot</a></li>
@@ -20,3 +21,4 @@ ini_set('session.cookie_path', '/'); // optional but helps across directories
     </ul>
 </body>
 </html>
+

@@ -15,6 +15,7 @@ session_start();
         <li><a href="my_clients.php">My Clients</a></li>
         <li><a href="lot_list.php">Available Lots</a></li>
         <li><a href="commissions.php">View Commission</a></li>
+        <li><a href="profile.php">My Profile</a></li> <!-- Link to the profile page -->
     </ul>
 </body>
 </html>
