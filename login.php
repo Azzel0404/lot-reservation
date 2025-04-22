@@ -7,7 +7,7 @@ ini_set('session.cookie_path', '/');
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lot-reservation/config/db.php';
 
-// ✅ Redirect if user is already logged in
+// Redirect if user is already logged in
 if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
     switch ($_SESSION['role']) {
         case 'ADMIN':
@@ -28,7 +28,7 @@ if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
 // Initialize error message variable
 $errorMessage = '';
 
-// ✅ Process login
+// Process login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -45,13 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user['password'])) {
-                // ✅ Set session values
+                // Set session values
                 session_regenerate_id(true); // Prevent session fixation
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
-                // ✅ Redirect based on role
+                // Redirect based on role
                 switch ($user['role']) {
                     case 'ADMIN':
                         header("Location: admin/index.php");
