@@ -54,10 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login - Lot Reservation System</title>
-    <link rel="stylesheet" href="css/styles.css"> <!-- Optional if you want to extract shared styles -->
+    <link rel="stylesheet" href="css/styles.css">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: #f2f4f8; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        body {
+            background-color: #f2f4f8;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
         .container {
             width: 850px;
@@ -123,14 +128,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 5px;
         }
 
+        .form-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .register-btn,
+        .back-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+
         .register-btn {
             background-color: #5e2ced;
-            color: white;
-            padding: 10px;
-            font-size: 12px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
+        }
+
+        .back-btn {
+            background-color: #6c757d;
         }
 
         .error {
@@ -138,12 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: bold;
             text-align: center;
             margin-bottom: 10px;
-        }
-
-        .form-footer {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
         }
     </style>
 </head>
@@ -169,6 +185,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-footer">
                 <form action="register.php" method="get">
                     <button class="register-btn" type="submit">Create Account</button>
+                </form>
+                <form action="index.php" method="get">
+                    <button class="back-btn" type="submit">Back</button>
                 </form>
             </div>
         </div>

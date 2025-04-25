@@ -1,3 +1,5 @@
+<!--admin/index.php-->
+
 <?php
 session_start();
 ?>
@@ -18,7 +20,7 @@ session_start();
             <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li><a href="#"><i class="fas fa-calendar-check"></i> Reservations</a></li>
             <li><a href="#"><i class="fas fa-map"></i> Lots</a></li>
-            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="users.php"><i class="fas fa-users"></i> Users</a></li>
             <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
             <li><a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>

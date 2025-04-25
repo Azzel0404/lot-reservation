@@ -279,3 +279,43 @@ button:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.user-section {
+    padding: 20px;
+}
+
+.user-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.user-section table th,
+.user-section table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.user-section h2 {
+    margin-top: 30px;
+    color: #333;
+}
+
+.file-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap; /* So file name moves under if needed */
+}
+
+.file-name {
+    color: #b0b0b0; /* Light grey color to blend with the background */
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+

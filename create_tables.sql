@@ -70,3 +70,7 @@ CREATE TABLE agent_commission (
     FOREIGN KEY (agent_id) REFERENCES agent(agent_id) ON DELETE CASCADE,
     FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id) ON DELETE CASCADE
 );
+
+ALTER TABLE lot
+ADD COLUMN aerial_image VARCHAR(255) AFTER status,
+ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image;
