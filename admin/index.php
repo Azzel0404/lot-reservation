@@ -1,4 +1,3 @@
-<!--admin/index.php-->
 <?php
 session_start();
 ?>
@@ -12,46 +11,58 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
 <div class="dashboard-container">
     <!-- Include the sidebar from sidebar.php -->
     <?php include('sidebar.php'); ?>
 
     <main class="main-content">
+        <!-- Top Bar -->
         <header class="top-bar">
             <span>Admin</span>
             <i class="fas fa-user-cog"></i>
         </header>
 
-        <section class="dashboard-metrics">
-            <div class="card blue"><h3>10</h3><p>Total Reservations</p></div>
-            <div class="card green"><h3>5</h3><p>Approved Reservations</p></div>
-            <div class="card purple"><h3>15</h3><p>Total Users</p></div>
-            <div class="card red"><h3>3</h3><p>Expired Reservations</p></div>
-            <div class="card donut">
-                <canvas id="lotChart"></canvas>
-            </div>
-        </section>
+        <!-- Wrapped content -->
+        <div class="content-wrapper">
+            <!-- Metrics -->
+            <section class="dashboard-metrics">
+                <div class="card blue"><h3>10</h3><p>Total Reservations</p></div>
+                <div class="card green"><h3>5</h3><p>Approved Reservations</p></div>
+                <div class="card purple"><h3>15</h3><p>Total Users</p></div>
+                <div class="card red"><h3>3</h3><p>Expired Reservations</p></div>
+                <div class="card donut">
+                    <canvas id="lotChart"></canvas>
+                </div>
+            </section>
 
-        <section class="activity-log">
-            <h3>Recent Activity</h3>
-            <button class="filter-btn"><i class="fas fa-filter"></i> Filter</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Action</th><th>User</th><th>Role</th><th>Related Lot</th><th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Reservation Approved</td><td>Maria Dela Cruz</td><td>Client</td><td>Lot 11</td><td>2025-03-15 10:45 AM</td></tr>
-                    <tr><td>User Login</td><td>Jane Smith</td><td>Admin</td><td>Lot 31</td><td>2025-03-15 09:30 AM</td></tr>
-                    <tr><td>Reservation Approved</td><td>Robert Lee</td><td>Client</td><td>Lot 13</td><td>2025-03-13 03:10 PM</td></tr>
-                    <tr><td>Reservation Approved</td><td>Maria</td><td>Client</td><td>Lot 41</td><td>2025-03-13 05:20 PM</td></tr>
-                </tbody>
-            </table>
-        </section>
+            <!-- Recent Activity -->
+            <section class="activity-log">
+                <h3>Recent Activity</h3>
+                <button class="filter-btn"><i class="fas fa-filter"></i> Filter</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Related Lot</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Reservation Approved</td><td>Maria Dela Cruz</td><td>Client</td><td>Lot 11</td><td>2025-03-15 10:45 AM</td></tr>
+                        <tr><td>User Login</td><td>Jane Smith</td><td>Admin</td><td>Lot 31</td><td>2025-03-15 09:30 AM</td></tr>
+                        <tr><td>Reservation Approved</td><td>Robert Lee</td><td>Client</td><td>Lot 13</td><td>2025-03-13 03:10 PM</td></tr>
+                        <tr><td>Reservation Approved</td><td>Maria</td><td>Client</td><td>Lot 41</td><td>2025-03-13 05:20 PM</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div> <!-- END content-wrapper -->
     </main>
 </div>
 
+<!-- Chart Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('lotChart').getContext('2d');
@@ -73,5 +84,6 @@ new Chart(ctx, {
     }
 });
 </script>
+
 </body>
 </html>

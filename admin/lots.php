@@ -1,15 +1,21 @@
 <?php
-// Include your database connection and layout files
+session_start();
 include '../config/db.php';
-include 'header.php';  // Session already started here
-include 'sidebar.php'; // This is the correct sidebar inclusion
-
-// Fetch all lot batches from the database
-$lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at DESC");
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lot Batch Management</title>
+    <link rel="stylesheet" href="../admin/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
 <div class="dashboard-container">
-    <!-- Main Content -->
+    <?php include('sidebar.php'); ?>
+
     <main class="main-content">
         <!-- Top Bar -->
         <header class="top-bar">
@@ -36,7 +42,10 @@ $lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at 
                     </tr>
                 </thead>
                 <tbody>
-                <?php while($batch = mysqli_fetch_assoc($lot_batches)): ?>
+                <?php
+                $lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at DESC");
+                while ($batch = mysqli_fetch_assoc($lot_batches)):
+                ?>
                     <tr>
                         <td><?= $batch['batch_id'] ?></td>
                         <td><?= htmlspecialchars($batch['batch_number']) ?></td>
@@ -88,9 +97,6 @@ $lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at 
     </main> <!-- END Main Content -->
 </div> <!-- END Dashboard Container -->
 
-<?php include 'footer.php'; ?>
-
-<!-- JS Modal Scripts -->
 <script>
 function openAddModal() {
     document.getElementById('addLotModal').style.display = 'block';
@@ -99,3 +105,6 @@ function closeAddModal() {
     document.getElementById('addLotModal').style.display = 'none';
 }
 </script>
+
+</body>
+</html>

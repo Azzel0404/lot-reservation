@@ -201,3 +201,8 @@ th {
     border-radius: 8px;
     cursor: pointer;
 }
+.content-wrapper {
+    padding: 20px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
