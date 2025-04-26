@@ -7,7 +7,7 @@ $pass = "";
 $port = 3306;
 
 // Establish the connection
-$conn = new mysqli($host, $user, $pass, $db, port: $port);
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
 // Check for connection errors
 if ($conn->connect_errno) {

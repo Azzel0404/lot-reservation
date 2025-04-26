@@ -9,7 +9,7 @@ include('../config/db.php');
 <head>
     <meta charset="UTF-8">
     <title>User Management</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../admin/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         table {
@@ -49,13 +49,12 @@ include('../config/db.php');
                     <tr>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>Role</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php
                 $query = "
-                    SELECT u.email, u.role, c.firstname, c.lastname, c.middlename 
+                    SELECT u.email, c.firstname, c.lastname, c.middlename 
                     FROM user u
                     JOIN client c ON u.user_id = c.user_id
                 ";
@@ -66,7 +65,6 @@ include('../config/db.php');
                     <tr>
                         <td><?= htmlspecialchars($fullName) ?></td>
                         <td><?= htmlspecialchars($client['email']) ?></td>
-                        <td><?= $client['role'] ?></td>
                     </tr>
                 <?php endwhile; ?>
                 </tbody>
@@ -79,14 +77,13 @@ include('../config/db.php');
                     <tr>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>Role</th>
                         <th>License #</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php
                 $query = "
-                    SELECT u.email, u.role, a.firstname, a.lastname, a.middlename, a.license_number 
+                    SELECT u.email, a.firstname, a.lastname, a.middlename, a.license_number 
                     FROM user u
                     JOIN agent a ON u.user_id = a.user_id
                 ";
@@ -97,7 +94,6 @@ include('../config/db.php');
                     <tr>
                         <td><?= htmlspecialchars($fullName) ?></td>
                         <td><?= htmlspecialchars($agent['email']) ?></td>
-                        <td><?= $agent['role'] ?></td>
                         <td><?= htmlspecialchars($agent['license_number']) ?></td>
                     </tr>
                 <?php endwhile; ?>
