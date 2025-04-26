@@ -206,6 +206,12 @@
                                         data-status="<?= $row['status'] ?>">
                                         Edit
                                     </button>
+                                    <button class="deleteBtn"
+                                        data-id="<?= $row['lot_id'] ?>"
+                                        data-lot-number="<?= htmlspecialchars($row['lot_number'], ENT_QUOTES) ?>"
+                                        data-location="<?= htmlspecialchars($row['location'], ENT_QUOTES) ?>">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -253,6 +259,24 @@
         document.getElementById('closeEditLotModal').onclick = function () {
             document.getElementById('editLotModal').style.display = 'none';
         };
+
+        // Delete Button Logic
+        const deleteButtons = document.querySelectorAll('.deleteBtn');
+        deleteButtons.forEach(button => {
+            button.onclick = function () {
+                const lotId = this.getAttribute('data-id');
+                const lotNumber = this.getAttribute('data-lot-number');
+                const location = this.getAttribute('data-location');
+                
+                // Confirm before deletion
+                const confirmation = confirm(`Are you sure you want to delete Lot Number: ${lotNumber} at ${location}?`);
+
+                if (confirmation) {
+                    // Redirect to the delete action script with the lot ID
+                    window.location.href = `delete_lot_action.php?lot_id=${lotId}`;
+                }
+            };
+        });
     </script>
 </body>
 </html>
