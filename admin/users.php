@@ -1,4 +1,3 @@
-<!--admin/users.php-->
 <?php
 session_start();
 include('../config/db.php');
@@ -11,25 +10,6 @@ include('../config/db.php');
     <title>User Management</title>
     <link rel="stylesheet" href="../admin/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            margin-bottom: 2rem;
-        }
-        th, td {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        h3.section-heading {
-            margin-top: 2rem;
-        }
-    </style>
 </head>
 <body>
 <div class="dashboard-container">

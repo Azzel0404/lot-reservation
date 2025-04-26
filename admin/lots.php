@@ -1,282 +1,101 @@
-<!-- filepath: c:\xampp\htdocs\lot-reservation\admin\lots.php -->
+<?php
+// Include your database connection and layout files
+include '../config/db.php';
+include 'header.php';  // Session already started here
+include 'sidebar.php'; // This is the correct sidebar inclusion
 
-<?php include('../config/db.php'); ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manage Lots</title>
-    <link rel="stylesheet" href="../admin/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        /* Modal overlay style */
-        .modal-overlay {
-            display: none; /* Initially hidden */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-            z-index: 999; /* Ensure it's on top of everything */
-        }
+// Fetch all lot batches from the database
+$lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at DESC");
+?>
 
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+<div class="dashboard-container">
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <span>Admin</span>
+            <i class="fas fa-user-cog"></i>
+        </header>
 
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 24px;
-        }
+        <div class="content-wrapper">
+            <h1>Lot Batch Management</h1>
 
-        .styled-lot-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+            <button class="btn btn-add" onclick="openAddModal()">+ Add Lot Batch</button>
 
-        .styled-lot-table th, .styled-lot-table td {
-            padding: 12px;
-            border: 1px solid #ddd;
-        }
+            <br><br>
 
-        .styled-lot-table th {
-            background-color: #f4f4f4;
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <?php include('sidebar.php'); ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Batch Number</th>
+                        <th>Location</th>
+                        <th>Aerial Image</th>
+                        <th>Numbered Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php while($batch = mysqli_fetch_assoc($lot_batches)): ?>
+                    <tr>
+                        <td><?= $batch['batch_id'] ?></td>
+                        <td><?= htmlspecialchars($batch['batch_number']) ?></td>
+                        <td><?= htmlspecialchars($batch['location']) ?></td>
+                        <td>
+                            <?php if ($batch['aerial_image']): ?>
+                                <img src="../uploads/<?= $batch['aerial_image'] ?>" width="100">
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($batch['numbered_image']): ?>
+                                <img src="../uploads/<?= $batch['numbered_image'] ?>" width="100">
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="edit_lot_batch.php?id=<?= $batch['batch_id'] ?>" class="btn btn-edit">Edit</a>
+                            <a href="delete_lot_batch.php?id=<?= $batch['batch_id'] ?>" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this batch?');">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+                </tbody>
+            </table>
 
-        <main class="main-content">
-            <!-- Top bar -->
-            <header class="top-bar">
-                <span>Admin</span>
-                <i class="fas fa-user-cog"></i>
-            </header>
-
-            <!-- Success or Error message -->
-            <?php if (isset($_GET['success'])): ?>
-                <div class="alert success-alert"><?= htmlspecialchars($_GET['success']) ?></div>
-            <?php endif; ?>
-
-            <?php if (isset($_GET['error'])): ?>
-                <div class="alert error-alert"><?= htmlspecialchars($_GET['error']) ?></div>
-            <?php endif; ?>
-
-            <!-- Add Lot Button -->
-            <button id="addLotBtn">Add Lot</button>
-
-            <!-- Modal Form for Add Lot -->
-            <div id="addLotModal" style="display: none;">
+            <!-- Modal for Add Lot Batch -->
+            <div id="addLotModal" class="modal" style="display:none;">
                 <div class="modal-content">
-                    <span id="closeAddLotModal" class="close-btn">&times;</span>
-                    <h3>Add New Lot</h3>
-                    <form action="add_lot_action.php" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="action" value="add">
+                    <span style="float:right; cursor:pointer; font-size: 20px;" onclick="closeAddModal()">✖</span>
+                    <h2>Add Lot Batch</h2>
 
-                        <label for="lot_number">Lot Number</label>
-                        <input type="text" id="lot_number" name="lot_number" required>
+                    <form action="add_lot_batch.php" method="POST" enctype="multipart/form-data">
+                        <label for="batch_number">Batch Number:</label><br>
+                        <input type="text" id="batch_number" name="batch_number" required><br><br>
 
-                        <label for="location">Location</label>
-                        <input type="text" id="location" name="location" required>
+                        <label for="location">Location:</label><br>
+                        <input type="text" id="location" name="location" required><br><br>
 
-                        <label for="size">Size (Square Meters)</label>
-                        <input type="number" id="size" name="size" step="0.01" required>
+                        <label for="aerial_image">Aerial Image:</label><br>
+                        <input type="file" id="aerial_image" name="aerial_image" accept="image/*"><br><br>
 
-                        <label for="price">Price</label>
-                        <input type="number" id="price" name="price" step="0.01" required>
+                        <label for="numbered_image">Numbered Image:</label><br>
+                        <input type="file" id="numbered_image" name="numbered_image" accept="image/*"><br><br>
 
-                        <label for="status">Status</label>
-                        <select id="status" name="status" required>
-                            <option value="Available">Available</option>
-                            <option value="Reserved">Reserved</option>
-                        </select>
-
-                        <label for="aerial_image">Aerial Image</label>
-                        <input type="file" id="aerial_image" name="aerial_image" accept="image/*" required>
-
-                        <label for="numbered_image">Numbered Image</label>
-                        <input type="file" id="numbered_image" name="numbered_image" accept="image/*" required>
-
-                        <button type="submit">Add Lot</button>
+                        <button type="submit" class="btn btn-save">Save</button>
+                        <button type="button" class="btn btn-cancel" onclick="closeAddModal()">Cancel</button>
                     </form>
                 </div>
             </div>
+        </div> <!-- END Content Wrapper -->
+    </main> <!-- END Main Content -->
+</div> <!-- END Dashboard Container -->
 
-            <!-- Edit Lot Modal -->
-            <div id="editLotModal" class="modal-overlay">
-                <div class="modal-content">
-                    <span id="closeEditLotModal" class="close-btn">&times;</span>
-                    <h3>Edit Lot</h3>
-                    <form id="editLotForm" action="edit_lot_action.php" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="action" value="edit">
-                        <input type="hidden" id="lot_id" name="lot_id">
+<?php include 'footer.php'; ?>
 
-                        <label for="edit_lot_number">Lot Number</label>
-                        <input type="text" id="edit_lot_number" name="lot_number" required>
-
-                        <label for="edit_location">Location</label>
-                        <input type="text" id="edit_location" name="location" required>
-
-                        <label for="edit_size">Size (Square Meters)</label>
-                        <input type="number" id="edit_size" name="size" step="0.01" required>
-
-                        <label for="edit_price">Price</label>
-                        <input type="number" id="edit_price" name="price" step="0.01" required>
-
-                        <label for="edit_status">Status</label>
-                        <select id="edit_status" name="status" required>
-                            <option value="Available">Available</option>
-                            <option value="Reserved">Reserved</option>
-                        </select>
-
-                        <label for="edit_aerial_image">Aerial Image</label>
-                        <input type="file" id="edit_aerial_image" name="aerial_image" accept="image/*">
-
-                        <label for="edit_numbered_image">Numbered Image</label>
-                        <input type="file" id="edit_numbered_image" name="numbered_image" accept="image/*">
-
-                        <button type="submit">Update Lot</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Lot Table Section -->
-            <section class="lot-list-section">
-                <h3>Existing Lots</h3>
-                <div class="activity-log">
-                    <table id="lotListTable" class="styled-lot-table">
-                        <thead>
-                            <tr>
-                                <th>Lot Number</th>
-                                <th>Location</th>
-                                <th>Size (m²)</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Aerial</th>
-                                <th>Numbered View</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $result = $conn->query("SELECT * FROM lot ORDER BY lot_id ASC");
-                            while ($row = $result->fetch_assoc()):
-                            ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['lot_number']) ?></td>
-                                <td><?= htmlspecialchars($row['location']) ?></td>
-                                <td><?= $row['size_meter_square'] ?></td>
-                                <td>₱<?= number_format($row['price'], 2) ?></td>
-                                <td><?= $row['status'] ?></td>
-                                <td>
-                                    <?php if (!empty($row['aerial_image'])): ?>
-                                        <img src="../<?= htmlspecialchars($row['aerial_image']) ?>" class="thumbnail" alt="Aerial Image">
-                                    <?php else: ?>
-                                        N/A
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($row['numbered_image'])): ?>
-                                        <img src="../<?= htmlspecialchars($row['numbered_image']) ?>" class="thumbnail" alt="Numbered Image">
-                                    <?php else: ?>
-                                        N/A
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <button class="editBtn"
-                                        data-id="<?= $row['lot_id'] ?>"
-                                        data-lot-number="<?= htmlspecialchars($row['lot_number'], ENT_QUOTES) ?>"
-                                        data-location="<?= htmlspecialchars($row['location'], ENT_QUOTES) ?>"
-                                        data-size="<?= $row['size_meter_square'] ?>"
-                                        data-price="<?= $row['price'] ?>"
-                                        data-status="<?= $row['status'] ?>">
-                                        Edit
-                                    </button>
-                                    <button class="deleteBtn"
-                                        data-id="<?= $row['lot_id'] ?>"
-                                        data-lot-number="<?= htmlspecialchars($row['lot_number'], ENT_QUOTES) ?>"
-                                        data-location="<?= htmlspecialchars($row['location'], ENT_QUOTES) ?>">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Show/Hide Modal Logic -->
-    <script>
-        document.getElementById('addLotBtn').onclick = function () {
-            document.getElementById('addLotModal').style.display = 'flex';
-        };
-        document.getElementById('closeAddLotModal').onclick = function () {
-            document.getElementById('addLotModal').style.display = 'none';
-        };
-
-        // Show the Edit Lot modal
-        const editButtons = document.querySelectorAll('.editBtn');
-        editButtons.forEach(button => {
-            button.onclick = function () {
-                const lotId = this.getAttribute('data-id');
-                const lotNumber = this.getAttribute('data-lot-number');
-                const location = this.getAttribute('data-location');
-                const size = this.getAttribute('data-size');
-                const price = this.getAttribute('data-price');
-                const status = this.getAttribute('data-status');
-
-                // Pre-fill the form with the current lot data
-                document.getElementById('lot_id').value = lotId;
-                document.getElementById('edit_lot_number').value = lotNumber;
-                document.getElementById('edit_location').value = location;
-                document.getElementById('edit_size').value = size;
-                document.getElementById('edit_price').value = price;
-                document.getElementById('edit_status').value = status;
-
-                // Show the modal
-                document.getElementById('editLotModal').style.display = 'flex';
-            };
-        });
-
-        // Close the Edit Lot modal
-        document.getElementById('closeEditLotModal').onclick = function () {
-            document.getElementById('editLotModal').style.display = 'none';
-        };
-
-        // Delete Button Logic
-        const deleteButtons = document.querySelectorAll('.deleteBtn');
-        deleteButtons.forEach(button => {
-            button.onclick = function () {
-                const lotId = this.getAttribute('data-id');
-                const lotNumber = this.getAttribute('data-lot-number');
-                const location = this.getAttribute('data-location');
-                
-                // Confirm before deletion
-                const confirmation = confirm(`Are you sure you want to delete Lot Number: ${lotNumber} at ${location}?`);
-
-                if (confirmation) {
-                    // Redirect to the delete action script with the lot ID
-                    window.location.href = `delete_lot_action.php?lot_id=${lotId}`;
-                }
-            };
-        });
-    </script>
-</body>
-</html>
+<!-- JS Modal Scripts -->
+<script>
+function openAddModal() {
+    document.getElementById('addLotModal').style.display = 'block';
+}
+function closeAddModal() {
+    document.getElementById('addLotModal').style.display = 'none';
+}
+</script>
