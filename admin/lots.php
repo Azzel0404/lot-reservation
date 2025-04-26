@@ -1,4 +1,5 @@
 <!-- filepath: c:\xampp\htdocs\lot-reservation\admin\lots.php -->
+
 <?php include('../config/db.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +8,53 @@
     <title>Manage Lots</title>
     <link rel="stylesheet" href="../admin/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Modal overlay style */
+        .modal-overlay {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 999; /* Ensure it's on top of everything */
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .styled-lot-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .styled-lot-table th, .styled-lot-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .styled-lot-table th {
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -31,7 +79,7 @@
             <!-- Add Lot Button -->
             <button id="addLotBtn">Add Lot</button>
 
-            <!-- Modal Form -->
+            <!-- Modal Form for Add Lot -->
             <div id="addLotModal" style="display: none;">
                 <div class="modal-content">
                     <span id="closeAddLotModal" class="close-btn">&times;</span>
@@ -64,6 +112,44 @@
                         <input type="file" id="numbered_image" name="numbered_image" accept="image/*" required>
 
                         <button type="submit">Add Lot</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Lot Modal -->
+            <div id="editLotModal" class="modal-overlay">
+                <div class="modal-content">
+                    <span id="closeEditLotModal" class="close-btn">&times;</span>
+                    <h3>Edit Lot</h3>
+                    <form id="editLotForm" action="edit_lot_action.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" id="lot_id" name="lot_id">
+
+                        <label for="edit_lot_number">Lot Number</label>
+                        <input type="text" id="edit_lot_number" name="lot_number" required>
+
+                        <label for="edit_location">Location</label>
+                        <input type="text" id="edit_location" name="location" required>
+
+                        <label for="edit_size">Size (Square Meters)</label>
+                        <input type="number" id="edit_size" name="size" step="0.01" required>
+
+                        <label for="edit_price">Price</label>
+                        <input type="number" id="edit_price" name="price" step="0.01" required>
+
+                        <label for="edit_status">Status</label>
+                        <select id="edit_status" name="status" required>
+                            <option value="Available">Available</option>
+                            <option value="Reserved">Reserved</option>
+                        </select>
+
+                        <label for="edit_aerial_image">Aerial Image</label>
+                        <input type="file" id="edit_aerial_image" name="aerial_image" accept="image/*">
+
+                        <label for="edit_numbered_image">Numbered Image</label>
+                        <input type="file" id="edit_numbered_image" name="numbered_image" accept="image/*">
+
+                        <button type="submit">Update Lot</button>
                     </form>
                 </div>
             </div>
@@ -111,8 +197,15 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <button class="editBtn">Edit</button>
-                                    <!-- Add delete button if needed -->
+                                    <button class="editBtn"
+                                        data-id="<?= $row['lot_id'] ?>"
+                                        data-lot-number="<?= htmlspecialchars($row['lot_number'], ENT_QUOTES) ?>"
+                                        data-location="<?= htmlspecialchars($row['location'], ENT_QUOTES) ?>"
+                                        data-size="<?= $row['size_meter_square'] ?>"
+                                        data-price="<?= $row['price'] ?>"
+                                        data-status="<?= $row['status'] ?>">
+                                        Edit
+                                    </button>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -130,6 +223,35 @@
         };
         document.getElementById('closeAddLotModal').onclick = function () {
             document.getElementById('addLotModal').style.display = 'none';
+        };
+
+        // Show the Edit Lot modal
+        const editButtons = document.querySelectorAll('.editBtn');
+        editButtons.forEach(button => {
+            button.onclick = function () {
+                const lotId = this.getAttribute('data-id');
+                const lotNumber = this.getAttribute('data-lot-number');
+                const location = this.getAttribute('data-location');
+                const size = this.getAttribute('data-size');
+                const price = this.getAttribute('data-price');
+                const status = this.getAttribute('data-status');
+
+                // Pre-fill the form with the current lot data
+                document.getElementById('lot_id').value = lotId;
+                document.getElementById('edit_lot_number').value = lotNumber;
+                document.getElementById('edit_location').value = location;
+                document.getElementById('edit_size').value = size;
+                document.getElementById('edit_price').value = price;
+                document.getElementById('edit_status').value = status;
+
+                // Show the modal
+                document.getElementById('editLotModal').style.display = 'flex';
+            };
+        });
+
+        // Close the Edit Lot modal
+        document.getElementById('closeEditLotModal').onclick = function () {
+            document.getElementById('editLotModal').style.display = 'none';
         };
     </script>
 </body>
