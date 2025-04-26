@@ -1,5 +1,4 @@
 <!-- filepath: c:\xampp\htdocs\lot-reservation\admin\lots.php -->
-
 <?php include('../config/db.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,12 +13,13 @@
         <?php include('sidebar.php'); ?>
 
         <main class="main-content">
+            <!-- Top bar -->
             <header class="top-bar">
                 <span>Admin</span>
                 <i class="fas fa-user-cog"></i>
             </header>
 
-            <!-- ✅ Message Feedback -->
+            <!-- Success or Error message -->
             <?php if (isset($_GET['success'])): ?>
                 <div class="alert success-alert"><?= htmlspecialchars($_GET['success']) ?></div>
             <?php endif; ?>
@@ -31,7 +31,7 @@
             <!-- Add Lot Button -->
             <button id="addLotBtn">Add Lot</button>
 
-            <!-- Modal -->
+            <!-- Modal Form -->
             <div id="addLotModal" style="display: none;">
                 <div class="modal-content">
                     <span id="closeAddLotModal" class="close-btn">&times;</span>
@@ -68,48 +68,65 @@
                 </div>
             </div>
 
-            <!-- Lot Table -->
+            <!-- Lot Table Section -->
             <section class="lot-list-section">
                 <h3>Existing Lots</h3>
-                <table id="lotListTable">
-                    <thead>
-                        <tr>
-                            <th>Lot Number</th>
-                            <th>Location</th>
-                            <th>Size (m²)</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Aerial</th>
-                            <th>Numbered View</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $result = $conn->query("SELECT * FROM lot");
-                        while ($row = $result->fetch_assoc()):
-                        ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['lot_number']) ?></td>
-                            <td><?= htmlspecialchars($row['location']) ?></td>
-                            <td><?= $row['size_meter_square'] ?></td>
-                            <td>₱<?= number_format($row['price'], 2) ?></td>
-                            <td><?= $row['status'] ?></td>
-                            <td><img src="../<?= $row['aerial_image'] ?>" width="100"></td>
-                            <td><img src="../<?= $row['numbered_image'] ?>" width="100"></td>
-                            <td><!-- Actions go here --></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+                <div class="activity-log">
+                    <table id="lotListTable" class="styled-lot-table">
+                        <thead>
+                            <tr>
+                                <th>Lot Number</th>
+                                <th>Location</th>
+                                <th>Size (m²)</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Aerial</th>
+                                <th>Numbered View</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $result = $conn->query("SELECT * FROM lot ORDER BY lot_id ASC");
+                            while ($row = $result->fetch_assoc()):
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['lot_number']) ?></td>
+                                <td><?= htmlspecialchars($row['location']) ?></td>
+                                <td><?= $row['size_meter_square'] ?></td>
+                                <td>₱<?= number_format($row['price'], 2) ?></td>
+                                <td><?= $row['status'] ?></td>
+                                <td>
+                                    <?php if (!empty($row['aerial_image'])): ?>
+                                        <img src="../<?= htmlspecialchars($row['aerial_image']) ?>" class="thumbnail" alt="Aerial Image">
+                                    <?php else: ?>
+                                        N/A
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($row['numbered_image'])): ?>
+                                        <img src="../<?= htmlspecialchars($row['numbered_image']) ?>" class="thumbnail" alt="Numbered Image">
+                                    <?php else: ?>
+                                        N/A
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <button class="editBtn">Edit</button>
+                                    <!-- Add delete button if needed -->
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </main>
     </div>
 
-    <!-- JS to Show/Hide Modal -->
+    <!-- Show/Hide Modal Logic -->
     <script>
         document.getElementById('addLotBtn').onclick = function () {
-            document.getElementById('addLotModal').style.display = 'block';
+            document.getElementById('addLotModal').style.display = 'flex';
         };
         document.getElementById('closeAddLotModal').onclick = function () {
             document.getElementById('addLotModal').style.display = 'none';
