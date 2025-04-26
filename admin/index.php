@@ -1,5 +1,4 @@
 <!--admin/index.php-->
-
 <?php
 session_start();
 ?>
@@ -9,22 +8,13 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../admin/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <div class="dashboard-container">
-    <aside class="sidebar">
-        <h2 class="logo">Reservelt</h2>
-        <ul class="sidebar-nav">
-            <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="#"><i class="fas fa-calendar-check"></i> Reservations</a></li>
-            <li><a href="#"><i class="fas fa-map"></i> Lots</a></li>
-            <li><a href="users.php"><i class="fas fa-users"></i> Users</a></li>
-            <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
-            <li><a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </aside>
+    <!-- Include the sidebar from sidebar.php -->
+    <?php include('sidebar.php'); ?>
 
     <main class="main-content">
         <header class="top-bar">
