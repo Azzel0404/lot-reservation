@@ -1,3 +1,5 @@
+<!--admin/users.php-->
+
 <?php
 session_start();
 include('../config/db.php');
@@ -26,63 +28,67 @@ include('../config/db.php');
         <!-- Wrapped Content -->
         <div class="content-wrapper">
             <section class="user-management">
-                <!-- CLIENTS TABLE -->
-                <h3 class="section-heading">Clients</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    $query = "
-                        SELECT u.email, c.firstname, c.lastname, c.middlename 
-                        FROM user u
-                        JOIN client c ON u.user_id = c.user_id
-                    ";
-                    $result = $conn->query($query);
-                    while ($client = $result->fetch_assoc()):
-                        $fullName = $client['firstname'] . ' ' . ($client['middlename'] ? $client['middlename'] . ' ' : '') . $client['lastname'];
-                    ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fullName) ?></td>
-                            <td><?= htmlspecialchars($client['email']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                    </tbody>
-                </table>
+                <!-- CLIENTS TABLE (First) -->
+                <div class="table-section">
+                    <h3 class="section-heading">Clients</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $query = "
+                            SELECT u.email, c.firstname, c.lastname, c.middlename 
+                            FROM user u
+                            JOIN client c ON u.user_id = c.user_id
+                        ";
+                        $result = $conn->query($query);
+                        while ($client = $result->fetch_assoc()):
+                            $fullName = $client['firstname'] . ' ' . ($client['middlename'] ? $client['middlename'] . ' ' : '') . $client['lastname'];
+                        ?>
+                            <tr>
+                                <td><?= htmlspecialchars($fullName) ?></td>
+                                <td><?= htmlspecialchars($client['email']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
 
-                <!-- AGENTS TABLE -->
-                <h3 class="section-heading">Agents</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>License #</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    $query = "
-                        SELECT u.email, a.firstname, a.lastname, a.middlename, a.license_number 
-                        FROM user u
-                        JOIN agent a ON u.user_id = a.user_id
-                    ";
-                    $result = $conn->query($query);
-                    while ($agent = $result->fetch_assoc()):
-                        $fullName = $agent['firstname'] . ' ' . ($agent['middlename'] ? $agent['middlename'] . ' ' : '') . $agent['lastname'];
-                    ?>
-                        <tr>
-                            <td><?= htmlspecialchars($fullName) ?></td>
-                            <td><?= htmlspecialchars($agent['email']) ?></td>
-                            <td><?= htmlspecialchars($agent['license_number']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                    </tbody>
-                </table>
+                <!-- AGENTS TABLE (Below Clients) -->
+                <div class="table-section">
+                    <h3 class="section-heading">Agents</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>License #</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $query = "
+                            SELECT u.email, a.firstname, a.lastname, a.middlename, a.license_number 
+                            FROM user u
+                            JOIN agent a ON u.user_id = a.user_id
+                        ";
+                        $result = $conn->query($query);
+                        while ($agent = $result->fetch_assoc()):
+                            $fullName = $agent['firstname'] . ' ' . ($agent['middlename'] ? $agent['middlename'] . ' ' : '') . $agent['lastname'];
+                        ?>
+                            <tr>
+                                <td><?= htmlspecialchars($fullName) ?></td>
+                                <td><?= htmlspecialchars($agent['email']) ?></td>
+                                <td><?= htmlspecialchars($agent['license_number']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </div> <!-- END content-wrapper -->
     </main>

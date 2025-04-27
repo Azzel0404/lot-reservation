@@ -31,26 +31,25 @@ CREATE TABLE client (
     FOREIGN KEY (agent_id) REFERENCES agent(agent_id) ON DELETE SET NULL
 );
 
--- 4. LOT BATCH TABLE
-CREATE TABLE lot_batch (
-    batch_id INT AUTO_INCREMENT PRIMARY KEY,
-    batch_number VARCHAR(50) NOT NULL UNIQUE, -- Example: "Batch 1"
+-- 4. MAP TABLE (renamed from lot_batch)
+CREATE TABLE map (
+    map_id INT AUTO_INCREMENT PRIMARY KEY,
+    map_number VARCHAR(50) NOT NULL UNIQUE, 
     location VARCHAR(255) NOT NULL,
-    aerial_image VARCHAR(255),  -- Filename/path for aerial view image
-    numbered_image VARCHAR(255), -- Filename/path for numbered lot layout
+    map_layout VARCHAR(255), -- Path to the map layout image
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. LOT TABLE
+-- 5. LOT TABLE (updated reference from batch_id → map_id)
 CREATE TABLE lot (
     lot_id INT AUTO_INCREMENT PRIMARY KEY,
-    batch_id INT NOT NULL, -- Links to lot_batch
+    map_id INT NOT NULL, -- Links to map
     segment_number INT NOT NULL, -- Example: Lot 1, Lot 2, Lot 3
     size_meter_square DECIMAL(10,2) NOT NULL, -- Size in sqm
     price DECIMAL(12,2) NOT NULL,
     status ENUM('Available', 'Reserved', 'Sold') NOT NULL DEFAULT 'Available',
-    lot_image VARCHAR(255), -- (Optional) Individual lot photo
-    FOREIGN KEY (batch_id) REFERENCES lot_batch(batch_id) ON DELETE CASCADE
+    lot_image VARCHAR(255),
+    FOREIGN KEY (map_id) REFERENCES map(map_id) ON DELETE CASCADE
 );
 
 -- 6. PAYMENT TABLE

@@ -1,3 +1,4 @@
+<!-- admin/lots.php -->
 <?php
 session_start();
 include '../config/db.php';
@@ -7,99 +8,95 @@ include '../config/db.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lot Batch Management</title>
-    <link rel="stylesheet" href="../admin/admin.css">
+    <title>Lot Map Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-<div class="dashboard-container">
+<div class="layout-wrapper">
     <?php include('sidebar.php'); ?>
 
-    <main class="main-content">
-        <!-- Top Bar -->
-        <header class="top-bar">
+    <div class="content-area">
+        <div class="top-bar">
             <span>Admin</span>
             <i class="fas fa-user-cog"></i>
-        </header>
+        </div>
 
-        <div class="content-wrapper">
-            <h1>Lot Batch Management</h1>
+        <div class="container py-4">
+            <h2 class="mb-4">Lot Map Management</h2>
 
-            <button class="btn btn-add" onclick="openAddModal()">+ Add Lot Batch</button>
+            <button class="btn btn-add mb-4" onclick="openAddModal()">+ Add Lot Map</button>
 
-            <br><br>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Batch Number</th>
-                        <th>Location</th>
-                        <th>Aerial Image</th>
-                        <th>Numbered Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="row g-4">
                 <?php
-                $lot_batches = mysqli_query($conn, "SELECT * FROM lot_batch ORDER BY created_at DESC");
-                while ($batch = mysqli_fetch_assoc($lot_batches)):
+                $maps = mysqli_query($conn, "SELECT * FROM map ORDER BY created_at DESC");
+                while ($map = mysqli_fetch_assoc($maps)):
                 ?>
-                    <tr>
-                        <td><?= $batch['batch_id'] ?></td>
-                        <td><?= htmlspecialchars($batch['batch_number']) ?></td>
-                        <td><?= htmlspecialchars($batch['location']) ?></td>
-                        <td>
-                            <?php if ($batch['aerial_image']): ?>
-                                <img src="../uploads/<?= $batch['aerial_image'] ?>" width="100">
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($batch['numbered_image']): ?>
-                                <img src="../uploads/<?= $batch['numbered_image'] ?>" width="100">
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a href="edit_lot_batch.php?id=<?= $batch['batch_id'] ?>" class="btn btn-edit">Edit</a>
-                            <a href="delete_lot_batch.php?id=<?= $batch['batch_id'] ?>" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this batch?');">Delete</a>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-                </tbody>
-            </table>
-
-            <!-- Modal for Add Lot Batch -->
-            <div id="addLotModal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span style="float:right; cursor:pointer; font-size: 20px;" onclick="closeAddModal()">✖</span>
-                    <h2>Add Lot Batch</h2>
-
-                    <form action="add_lot_batch.php" method="POST" enctype="multipart/form-data">
-                        <label for="batch_number">Batch Number:</label><br>
-                        <input type="text" id="batch_number" name="batch_number" required><br><br>
-
-                        <label for="location">Location:</label><br>
-                        <input type="text" id="location" name="location" required><br><br>
-
-                        <label for="aerial_image">Aerial Image:</label><br>
-                        <input type="file" id="aerial_image" name="aerial_image" accept="image/*"><br><br>
-
-                        <label for="numbered_image">Numbered Image:</label><br>
-                        <input type="file" id="numbered_image" name="numbered_image" accept="image/*"><br><br>
-
-                        <button type="submit" class="btn btn-save">Save</button>
-                        <button type="button" class="btn btn-cancel" onclick="closeAddModal()">Cancel</button>
-                    </form>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card-hover h-100">
+                        <div class="map-img">
+                            <img src="../admin/images/<?= htmlspecialchars(basename($map['map_layout'])) ?>" alt="Map Image">
+                        </div>
+                        <div class="map-info">
+                            <div class="map-title"><?= htmlspecialchars($map['map_number']) ?></div>
+                            <div class="map-subtext"><?= htmlspecialchars($map['location']) ?></div>
+                            <a href="#" class="btn btn-primary btn-sm mt-3" onclick="openMapModal(<?= $map['map_id'] ?>)">View Details</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div> <!-- END Content Wrapper -->
-    </main> <!-- END Main Content -->
-</div> <!-- END Dashboard Container -->
 
+                <!-- Modal -->
+                <div id="mapModal<?= $map['map_id'] ?>" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeMapModal(<?= $map['map_id'] ?>)">✖</span>
+                        <img src="../admin/images/<?= htmlspecialchars(basename($map['map_layout'])) ?>" alt="Map Image">
+                        <div class="details">
+                            <h2><?= htmlspecialchars($map['map_number']) ?></h2>
+                            <p><strong>Location:</strong> <?= htmlspecialchars($map['location']) ?></p>
+                            <p><strong>Map ID:</strong> <?= $map['map_id'] ?></p>
+                        </div>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            </div>
+        </div>
+
+        <!-- Add Lot Modal -->
+        <div id="addLotModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddModal()">✖</span>
+                <h2>Add Lot Map</h2>
+                <form action="add_map.php" method="POST" enctype="multipart/form-data">
+                    <label for="map_number">Map Number:</label><br>
+                    <input type="text" id="map_number" name="map_number" required><br><br>
+
+                    <label for="location">Location:</label><br>
+                    <input type="text" id="location" name="location" required><br><br>
+
+                    <label for="map_layout">Map Layout:</label><br>
+                    <input type="file" id="map_layout" name="map_layout" accept="image/*" required><br><br>
+
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+function openMapModal(id) {
+    document.getElementById('mapModal' + id).style.display = 'flex';
+}
+function closeMapModal(id) {
+    document.getElementById('mapModal' + id).style.display = 'none';
+}
 function openAddModal() {
-    document.getElementById('addLotModal').style.display = 'block';
+    document.getElementById('addLotModal').style.display = 'flex';
 }
 function closeAddModal() {
     document.getElementById('addLotModal').style.display = 'none';
@@ -108,3 +105,5 @@ function closeAddModal() {
 
 </body>
 </html>
+
+<?php $conn->close(); ?>

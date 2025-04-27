@@ -1,3 +1,4 @@
+<!--admin/index.php-->
 <?php
 session_start();
 ?>
@@ -12,31 +13,44 @@ session_start();
 </head>
 <body>
 
-<div class="dashboard-container">
-    <!-- Include the sidebar from sidebar.php -->
+<div class="layout-wrapper">
+    <!-- Sidebar -->
     <?php include('sidebar.php'); ?>
 
-    <main class="main-content">
+    <!-- Content Area -->
+    <div class="content-area">
         <!-- Top Bar -->
         <header class="top-bar">
             <span>Admin</span>
             <i class="fas fa-user-cog"></i>
         </header>
 
-        <!-- Wrapped content -->
+        <!-- Page Content -->
         <div class="content-wrapper">
-            <!-- Metrics -->
+            <!-- Metrics Section -->
             <section class="dashboard-metrics">
-                <div class="card blue"><h3>10</h3><p>Total Reservations</p></div>
-                <div class="card green"><h3>5</h3><p>Approved Reservations</p></div>
-                <div class="card purple"><h3>15</h3><p>Total Users</p></div>
-                <div class="card red"><h3>3</h3><p>Expired Reservations</p></div>
+                <div class="card blue">
+                    <h3>10</h3>
+                    <p>Total Reservations</p>
+                </div>
+                <div class="card green">
+                    <h3>5</h3>
+                    <p>Approved Reservations</p>
+                </div>
+                <div class="card purple">
+                    <h3>15</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="card red">
+                    <h3>3</h3>
+                    <p>Expired Reservations</p>
+                </div>
                 <div class="card donut">
                     <canvas id="lotChart"></canvas>
                 </div>
             </section>
 
-            <!-- Recent Activity -->
+            <!-- Recent Activity Section -->
             <section class="activity-log">
                 <h3>Recent Activity</h3>
                 <button class="filter-btn"><i class="fas fa-filter"></i> Filter</button>
@@ -59,8 +73,8 @@ session_start();
                 </table>
             </section>
         </div> <!-- END content-wrapper -->
-    </main>
-</div>
+    </div> <!-- END content-area -->
+</div> <!-- END layout-wrapper -->
 
 <!-- Chart Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
