@@ -1,3 +1,4 @@
+<!--admin/lots/update_lot.php-->
 <?php
 include('../../config/db.php');
 
