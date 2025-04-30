@@ -8,28 +8,72 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lot Reservation System</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* General styles for body, sections, and text */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
+        /* Modern Color Palette */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --background: #f1f5f9;
         }
 
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
         header {
             position: fixed;
             width: 100%;
             top: 0;
-            background-color: #12254c;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            padding: 10px 20px;
+            padding: 15px 5%;
         }
 
         nav {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-right: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
             align-items: center;
         }
 
@@ -41,109 +85,271 @@ session_start();
         }
 
         nav ul li {
-            margin-right: 20px;
+            margin-right: 15px;
         }
 
         nav ul li a {
-            color: white;
+            color: var(--dark);
             text-decoration: none;
-            font-size: 18px;
-            padding: 10px;
+            font-size: 1rem;
+            padding: 8px 15px;
+            border-radius: 5px;
             transition: all 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            background-color: #1c3b70;
-            border-radius: 5px;
-        }
-
-              /* Adjust Login button on the right side */
-        .login-button {
+            font-weight: 500;
             display: flex;
-            justify-content: flex-end;
             align-items: center;
-            margin-left: 30px;
         }
 
+        nav ul li a i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        nav ul li a:hover, 
+        nav ul li a.active {
+            color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Login Button */
         .login-button a {
+            background-color: var(--primary);
             color: white;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 12px 50px; /* Increase padding for better visibility */
+            padding: 10px 25px;
             border-radius: 5px;
-            transition: background-color 0.3s;
-            display: inline-block;
-            font-weight: bold; /* Make text bold */
-            text-align: center; /* Center-align the text */
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-button a i {
+            margin-right: 8px;
         }
 
         .login-button a:hover {
-            background-color: #12254c;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         /* Section Styles */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
         section {
-            height: 100vh;
+            min-height: calc(100vh - 80px);
+            padding: 5% 10%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            position: absolute;
+            width: 100%;
+            top: 80px;
+            left: 0;
+            visibility: hidden;
         }
 
+        section.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+
+        /* Home Section */
         #home {
-            background-color: #f2f2f2;
+            background: linear-gradient(135deg, rgba(241, 245, 249, 0.9) 0%, rgba(241, 245, 249, 0.95) 100%), 
+                        url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
         }
 
+        .hero-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* About Section */
         #about {
-            background-color: #e1e1e1;
-            display: none; /* Initially hidden */
+            background-color: white;
         }
 
+        .about-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .feature-card {
+            background: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* Services Section */
         #services {
-            background-color: #d1d1d1;
-            display: none; /* Initially hidden */
+            background-color: var(--light);
         }
 
+        #services ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        #services li {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            text-align: left;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        #services li:hover {
+            transform: translateY(-10px);
+        }
+
+        #services li i {
+            position: absolute;
+            left: 20px;
+            top: 30px;
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        /* Contact Section */
         #contact {
-            background-color: #c1c1c1;
-            display: none; /* Initially hidden */
+            background-color: white;
         }
 
-        h1, h2 {
-            margin: 0;
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
         }
 
+        .contact-card {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 10px;
+            min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
         footer {
             text-align: center;
-            padding: 10px;
-            background-color: #12254c;
+            padding: 20px;
+            background-color: var(--dark);
             color: white;
+            font-size: 0.9rem;
         }
 
-        /* Add slow motion animation when transitioning between sections */
-        .fadeIn {
-            animation: fadeIn 1s ease-in-out;
+        .social-icons {
+            margin-top: 15px;
         }
 
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
+        .social-icons a {
+            color: white;
+            margin: 0 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 15px;
             }
-            100% {
-                opacity: 1;
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 15px;
             }
-        }
 
-        /* Make navigation stick to top */
-        header, footer {
-            position: fixed;
-            width: 100%;
-            z-index: 10;
-        }
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
 
-        footer {
-            bottom: 0;
+            nav ul li {
+                margin: 5px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .about-features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -151,69 +357,139 @@ session_start();
 
 <header>
     <nav>
-        <!-- Left-side navigation items -->
-        <ul>
-            <li><a href="#" onclick="showSection('home')">Home</a></li>
-            <li><a href="#" onclick="showSection('about')">About</a></li>
-            <li><a href="#" onclick="showSection('services')">Services</a></li>
-            <li><a href="#" onclick="showSection('contact')">Contact</a></li>
-        </ul>
+        <div class="nav-links">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>ReserveIt</span>
+            </div>
+            <ul>
+                <li><a href="#" class="active" onclick="showSection('home')"><i class="fas fa-home"></i>Home</a></li>
+                <li><a href="#" onclick="showSection('about')"><i class="fas fa-info-circle"></i>About</a></li>
+                <li><a href="#" onclick="showSection('services')"><i class="fas fa-concierge-bell"></i>Services</a></li>
+                <li><a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i>Contact</a></li>
+            </ul>
+        </div>
         
-        <!-- Right-side Login -->
         <div class="login-button">
-            <a href="/lot-reservation/login.php">Login</a>
+            <a href="/lot-reservation/login.php"><i class="fas fa-sign-in-alt"></i>Login</a>
         </div>
     </nav>
 </header>
 
-<!-- Home Section -->
-<section id="home" class="fadeIn">
-    <h1>Welcome to the Lot Reservation System</h1>
-    <p>Your trusted platform for reserving lots with ease.</p>
-</section>
+<div class="main-content">
+    <!-- Home Section -->
+    <section id="home" class="active">
+      
+        <h1>Modern Lot Reservation System</h1>
+        <p>Streamline your property management with our easy-to-use reservation platform. Book, manage, and track lots in real-time with complete transparency.</p>
+        <div class="login-button" style="margin-top: 20px;">
+            <a href="/lot-reservation/login.php"><i class="fas fa-rocket"></i>Get Started</a>
+        </div>
+    </section>
 
-<!-- About Section -->
-<section id="about" class="fadeIn">
-    <h2>About Us</h2>
-    <p>We provide a seamless experience for reserving lots, ensuring transparency and convenience.</p>
-</section>
+    <!-- About Section -->
+    <section id="about">
+        <h2>About Our Platform</h2>
+        <p>We've revolutionized lot reservations by creating a seamless digital experience that eliminates paperwork and reduces administrative overhead.</p>
+        
+        <div class="about-features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Time-Saving</h3>
+                <p>Reduce manual processing time by up to 80% with our automated reservation system.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure</h3>
+                <p>Bank-level security protects all your transactions and customer data.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile-Friendly</h3>
+                <p>Access your reservations from anywhere, on any device.</p>
+            </div>
+        </div>
+    </section>
 
-<!-- Services Section -->
-<section id="services" class="fadeIn">
-    <h2>Our Services</h2>
-    <ul>
-        <li>Easy Lot Reservations</li>
-        <li>Real-time Availability</li>
-        <li>Secure Transactions</li>
-    </ul>
-</section>
+    <!-- Services Section -->
+    <section id="services">
+        <h2>Our Comprehensive Services</h2>
+        <p>We offer a complete suite of tools to manage your property reservations efficiently.</p>
+        <ul>
+            <li><i class="fas fa-bolt"></i>Instant Online Reservations</li>
+            <li><i class="fas fa-binoculars"></i>Real-time Availability Tracking</li>
+            <li><i class="fas fa-lock"></i>Secure Payment Processing</li>
+            <li><i class="fas fa-bell"></i>Automated Notifications</li>
+            <li><i class="fas fa-chart-bar"></i>Detailed Reporting</li>
+            <li><i class="fas fa-mobile"></i>Mobile-Friendly Access</li>
+        </ul>
+    </section>
 
-<!-- Contact Section -->
-<section id="contact" class="fadeIn">
-    <h2>Contact Us</h2>
-    <p>Email: support@lotreservation.com</p>
-    <p>Phone: +123 456 7890</p>
-</section>
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2>Get In Touch</h2>
+        <p>Have questions or need support? Our team is ready to assist you.</p>
+        <div class="contact-info">
+            <div class="contact-card">
+                <i class="fas fa-envelope"></i>
+                <h3>Email</h3>
+                <p>support@lotreserve.com</p>
+            </div>
+            <div class="contact-card">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Phone</h3>
+                <p>+1 (555) 123-4567</p>
+            </div>
+            <div class="contact-card">
+                <i class="fas fa-building"></i>
+                <h3>Office</h3>
+                <p>123 Business Ave, Suite 200<br>San Francisco, CA 94107</p>
+            </div>
+        </div>
+    </section>
+</div>
 
 <footer>
     <p>&copy; 2025 Lot Reservation System. All rights reserved.</p>
+    <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+    </div>
 </footer>
 
 <script>
     // Function to show the corresponding section when the navigation item is clicked
     function showSection(sectionId) {
-        // Hide all sections first
+        // Hide all sections and remove active class from nav items
         const sections = document.querySelectorAll('section');
-        sections.forEach(section => section.style.display = 'none');
-
-        // Show the selected section with fadeIn effect
-        const selectedSection = document.getElementById(sectionId);
-        selectedSection.style.display = 'flex';
-        selectedSection.classList.add('fadeIn');
+        const navLinks = document.querySelectorAll('nav ul li a');
+        
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // Show the selected section and mark nav item as active
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelector(`a[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        
+        // Scroll to top smoothly
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
-
-    // Initially show the home section
-    window.onload = () => showSection('home');
 </script>
 
 </body>

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Agent Dashboard</title>
+    <title>Resenwelt - Commissions</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -30,10 +30,6 @@
             transition: all 0.3s ease;
         }
         
-        .sidebar:hover {
-            box-shadow: 4px 0 15px rgba(0,0,0,0.15);
-        }
-        
         .sidebar-brand {
             font-weight: 700;
             color: white;
@@ -56,47 +52,10 @@
             transform: translateX(3px);
         }
         
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            margin-right: 10px;
-        }
-        
         .topbar {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             padding: 1rem 1.5rem;
-        }
-        
-        .stat-card {
-            border-radius: 10px;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-        }
-        
-        .stat-card i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
-        
-        .stat-card .count {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .stat-card .label {
-            font-size: 0.9rem;
-            opacity: 0.9;
         }
         
         .content-card {
@@ -110,27 +69,55 @@
             font-weight: 600;
             color: var(--dark-color);
             border-top: none;
+            background-color: #f8f9fa;
         }
         
-        .table td {
-            vertical-align: middle;
-        }
-        
-        .badge-action {
+        .badge-status {
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 500;
         }
         
-        .badge-submitted {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
         .badge-approved {
             background-color: #d4edda;
             color: #155724;
+        }
+        
+        .badge-expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .commission-value {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+        
+        .received-badge {
+            background-color: #e6f7ee;
+            color: #0d6832;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .summary-card {
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .total-commission {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+        }
+        
+        .pending-commission {
+            background: linear-gradient(135deg, #ff9800, #ffa726);
+            color: white;
         }
     </style>
 </head>
@@ -138,10 +125,10 @@
     
     <!-- Sidebar -->
     <div class="sidebar p-4" style="width: 250px; height: 100vh;">
-        <div class="sidebar-brand">Reservelt</div>
+        <div class="sidebar-brand">ReserveIt</div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a href="#" class="nav-link text-white active">
+                <a href="index.php" class="nav-link text-white">
                     <i class="fas fa-chart-line me-2"></i> Dashboard
                 </a>
             </li>
@@ -151,7 +138,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="commissions.php" class="nav-link text-white">
+                <a href="commissions.php" class="nav-link text-white active">
                     <i class="fas fa-hand-holding-usd me-2"></i> Commissions
                 </a>
             </li>
@@ -167,7 +154,7 @@
     <div class="flex-grow-1">
         <!-- Topbar -->
         <div class="topbar d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold">Dashboard Overview</h5>
+            <h5 class="mb-0 fw-bold">Commissions</h5>
             <div class="d-flex align-items-center">
                 <span class="fw-medium me-3">Welcome, Agent</span>
                 <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
@@ -176,43 +163,38 @@
             </div>
         </div>
 
-        <!-- Stats -->
+        <!-- Commissions Content -->
         <div class="p-4">
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success-color), #66bb6a);">
-                        <i class="fas fa-users"></i>
-                        <div class="count">15</div>
-                        <div class="label">Total Assisted Clients</div>
+            <!-- Commission Summary -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="summary-card total-commission">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Total Commission</h6>
+                                <h3 class="mb-0">₱45,000</h3>
+                            </div>
+                            <i class="fas fa-coins fa-2x opacity-50"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, var(--warning-color), #ffa726);">
-                        <i class="fas fa-coins"></i>
-                        <div class="count">₱15,250</div>
-                        <div class="label">Total Commission Earned</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, var(--info-color), #42a5f5);">
-                        <i class="fas fa-check-circle"></i>
-                        <div class="count">8</div>
-                        <div class="label">Approved Reservations</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, var(--primary-color), #4895ef);">
-                        <i class="fas fa-clock"></i>
-                        <div class="count">3</div>
-                        <div class="label">Pending Reservations</div>
+                <div class="col-md-6">
+                    <div class="summary-card pending-commission">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Pending Commission</h6>
+                                <h3 class="mb-0">₱12,000</h3>
+                            </div>
+                            <i class="fas fa-clock fa-2x opacity-50"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
-            <div class="content-card mb-4">
+            <!-- Commissions Table -->
+            <div class="content-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="mb-0 fw-bold">Recent Activity</h5>
+                    <h5 class="mb-0 fw-bold">Commission Details</h5>
                     <div>
                         <button class="btn btn-sm btn-outline-secondary me-2">
                             <i class="fas fa-filter me-1"></i> Filter
@@ -222,51 +204,46 @@
                         </button>
                     </div>
                 </div>
+                
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Client Name</th>
-                                <th>Action Taken</th>
                                 <th>Lot Reserved</th>
-                                <th>Date</th>
-                                <th>Status</th>
+                                <th>Reservation Fee</th>
+                                <th>Commission Rate</th>
+                                <th>Earned Commission</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>John Doe</td>
-                                <td>Submitted Reservation</td>
                                 <td>Lot 5</td>
-                                <td>2025-03-15 10:45 AM</td>
-                                <td><span class="badge badge-action badge-submitted">Pending</span></td>
+                                <td class="commission-value">₱30,000</td>
+                                <td>5%</td>
+                                <td class="commission-value">₱1,500</td>
                             </tr>
                             <tr>
                                 <td>Jane Smith</td>
-                                <td>Reservation Approved</td>
-                                <td>Lot 10</td>
-                                <td>2025-03-15 09:30 AM</td>
-                                <td><span class="badge badge-action badge-approved">Approved</span></td>
+                                <td>Lot 8</td>
+                                <td class="commission-value">₱25,000</td>
+                                <td>5%</td>
+                                <td class="commission-value">₱1,250</td>
                             </tr>
                             <tr>
                                 <td>Robert Lee</td>
-                                <td>Reservation Approved</td>
-                                <td>Lot 22</td>
-                                <td>2025-03-13 03:10 PM</td>
-                                <td><span class="badge badge-action badge-approved">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td>Maria Garcia</td>
-                                <td>Submitted Reservation</td>
-                                <td>Lot 8</td>
-                                <td>2025-03-13 05:20 PM</td>
-                                <td><span class="badge badge-action badge-submitted">Pending</span></td>
+                                <td>Lot 2</td>
+                                <td class="commission-value">₱15,000</td>
+                                <td>5%</td>
+                                <td class="commission-value">₱750</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+                
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted">Showing 4 of 15 activities</div>
+                    <div class="text-muted">Showing 3 of 15 commissions</div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled">
