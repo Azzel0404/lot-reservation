@@ -1,42 +1,51 @@
-<!--admin/lots/update_lot.php-->
 <?php
 include('../../config/db.php');
+session_start();
 
-if (isset($_POST['update'])) {
+$uploadDir = 'uploads/';
+$allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
+
+if (isset($_POST['update']) && is_numeric($_POST['lot_id'])) {
     $lot_id = $_POST['lot_id'];
-    $lot_number = $_POST['lot_number'];
-    $location = $_POST['location'];
-    $size = $_POST['size_meter_square'];
-    $price = $_POST['price'];
+    $lot_number = trim($_POST['lot_number']);
+    $location = trim($_POST['location']);
+    $size = floatval($_POST['size_meter_square']);
+    $price = floatval($_POST['price']);
     $status = $_POST['status'];
 
-    // Handle optional image uploads
-    $aerial_image = $_FILES['aerial_image']['name'];
-    $numbered_image = $_FILES['numbered_image']['name'];
+    // Fetch existing lot to get old image names
+    $stmt = $conn->prepare("SELECT aerial_image, numbered_image FROM lot WHERE lot_id = ?");
+    $stmt->bind_param("i", $lot_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $existing = $result->fetch_assoc();
 
-    $update = "UPDATE lot SET 
-        lot_number='$lot_number',
-        location='$location',
-        size_meter_square='$size',
-        price='$price',
-        status='$status'";
+    $aerial_image = $existing['aerial_image'];
+    $numbered_image = $existing['numbered_image'];
 
-    if ($aerial_image) {
-        move_uploaded_file($_FILES['aerial_image']['tmp_name'], 'uploads/' . $aerial_image);
-        $update .= ", aerial_image='$aerial_image'";
-    }
-    if ($numbered_image) {
-        move_uploaded_file($_FILES['numbered_image']['tmp_name'], 'uploads/' . $numbered_image);
-        $update .= ", numbered_image='$numbered_image'";
+    // Aerial image replacement
+    if (!empty($_FILES['aerial_image']['name']) && in_array($_FILES['aerial_image']['type'], $allowed_types)) {
+        $aerial_image = time() . '_' . basename($_FILES['aerial_image']['name']);
+        move_uploaded_file($_FILES['aerial_image']['tmp_name'], $uploadDir . $aerial_image);
     }
 
-    $update .= " WHERE lot_id=$lot_id";
+    // Numbered image replacement
+    if (!empty($_FILES['numbered_image']['name']) && in_array($_FILES['numbered_image']['type'], $allowed_types)) {
+        $numbered_image = time() . '_' . basename($_FILES['numbered_image']['name']);
+        move_uploaded_file($_FILES['numbered_image']['tmp_name'], $uploadDir . $numbered_image);
+    }
 
-    if (mysqli_query($conn, $update)) {
-        header("Location: lots.php");
-        exit();
+    // Update the lot
+    $stmt = $conn->prepare("UPDATE lot SET lot_number = ?, location = ?, size_meter_square = ?, price = ?, status = ?, aerial_image = ?, numbered_image = ? WHERE lot_id = ?");
+    $stmt->bind_param("ssddsssi", $lot_number, $location, $size, $price, $status, $aerial_image, $numbered_image, $lot_id);
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Lot updated successfully.";
     } else {
-        echo "Error: " . mysqli_error($conn);
+        $_SESSION['error'] = "Failed to update lot: " . $stmt->error;
     }
+
+    header("Location: lots.php");
+    exit();
 }
 ?>

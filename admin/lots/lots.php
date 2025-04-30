@@ -1,4 +1,12 @@
 <!-- admin/lots/lots.php -->
+<?php session_start(); ?>
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
 <?php include('../../config/db.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +79,7 @@ function closeLotDetailsModal() {
 }
 
 function openLotDetails(id) {
-    fetch('edit_lot_form.php?id=' + id)
+    fetch('view_lot_form.php?id=' + id)
         .then(response => response.text())
         .then(html => {
             document.getElementById('lotDetailsContent').innerHTML = html;
