@@ -2,75 +2,104 @@
 
 <link rel="stylesheet" href="lots.css">
 
-<div?php
+<?php
 include('../../config/db.php');
 
 $lotId = $_GET['id'];
+// Sanitize the input to prevent SQL injection
+$lotId = mysqli_real_escape_string($conn, $lotId);
 $sql = "SELECT * FROM lot WHERE lot_id = $lotId";
 $result = mysqli_query($conn, $sql);
+
+if (!$result) {
+    echo "Error fetching lot details: " . mysqli_error($conn);
+    exit();
+}
+
 $lot = mysqli_fetch_assoc($result);
+
+if (!$lot) {
+    echo "Lot not found.";
+    exit();
+}
 ?>
 
-<!-- ✨ Close Button -->
 <span class="close" onclick="document.getElementById('lotDetailsModal').style.display='none'">&times;</span>
 
 <div class="view-lot-header">
     <h2>View Lot</h2>
 </div>
 
-<!-- 🖼️ Image Preview at Top -->
 <div class="image-preview-container">
     <div>
         <p><strong>Aerial Image</strong></p>
-        <img src="uploads/<?php echo $lot['aerial_image']; ?>" alt="Aerial Image">
+        <img src="uploads/<?php echo htmlspecialchars($lot['aerial_image']); ?>" alt="Aerial Image" style="max-width: 200px; max-height: 200px;">
     </div>
     <div>
         <p><strong>Numbered Image</strong></p>
-        <img src="uploads/<?php echo $lot['numbered_image']; ?>" alt="Numbered Image">
+        <img src="uploads/<?php echo htmlspecialchars($lot['numbered_image']); ?>" alt="Numbered Image" style="max-width: 200px; max-height: 200px;">
     </div>
 </div>
 
-<!-- 📝 Edit Form -->
-<form id="editLotForm" action="update_lots.php" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="lot_id" value="<?php echo $lot['lot_id']; ?>">
+<!-- Start of edit form -->
+<form id="editLotForm" action="update_lot.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="lot_id" value="<?php echo htmlspecialchars($lot['lot_id']); ?>">
 
-    <input type="text" name="lot_number" value="<?php echo $lot['lot_number']; ?>" disabled required>
-    <input type="text" name="location" value="<?php echo $lot['location']; ?>" disabled required>
-    <input type="number" step="0.01" name="size_meter_square" value="<?php echo $lot['size_meter_square']; ?>" disabled required>
-    <input type="number" step="0.01" name="price" value="<?php echo $lot['price']; ?>" disabled required>
+    <label for="lot_number">Lot Number:</label>
+    <input type="text" id="lot_number" name="lot_number" value="<?php echo htmlspecialchars($lot['lot_number']); ?>" required readonly>
 
-    <select name="status" disabled required>
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($lot['location']); ?>" required readonly>
+
+    <label for="size_meter_square">Size (sq m):</label>
+    <input type="number" step="0.01" id="size_meter_square" name="size_meter_square" value="<?php echo htmlspecialchars($lot['size_meter_square']); ?>" required readonly>
+
+    <label for="price">Price:</label>
+    <input type="number" step="0.01" id="price" name="price" value="<?php echo htmlspecialchars($lot['price']); ?>" required readonly>
+
+    <label for="status">Status:</label>
+    <select id="status" name="status" required disabled>
         <option value="Available" <?php if ($lot['status'] == 'Available') echo 'selected'; ?>>Available</option>
         <option value="Reserved" <?php if ($lot['status'] == 'Reserved') echo 'selected'; ?>>Reserved</option>
     </select>
 
-    <label>Change Aerial Image:</label>
-    <input type="file" name="aerial_image" accept="image/*" disabled>
+    <label for="aerial_image">Change Aerial Image:</label>
+    <input type="file" id="aerial_image" name="aerial_image" accept="image/*" disabled>
 
-    <label>Change Numbered Image:</label>
-    <input type="file" name="numbered_image" accept="image/*" disabled>
+    <label for="numbered_image">Change Numbered Image:</label>
+    <input type="file" id="numbered_image" name="numbered_image" accept="image/*" disabled>
 
-    <!-- Button Area -->
-    <button type="button" id="editBtn">Update Lot</button>
-    <button type="submit" id="confirmBtn" name="update" style="display:none;">Confirm</button>
-    <button type="button" id="cancelBtn" style="display:none; background-color:#95a5a6;">Cancel</button>
+    <div id="viewActions">
+        <button type="button" id="editBtn">Update Lot</button>
+    </div>
+
+    <div id="editActions" style="display:none;">
+        <button type="submit" id="confirmBtn" name="update">Submit</button>
+        <button type="button" id="cancelBtn" style="background-color:#95a5a6;">Cancel</button>
+    </div>
 </form>
 
-<!-- 🗑️ Delete Button -->
-<form action="delete_lot.php" method="POST" onsubmit="return confirm('Delete this lot?');">
-    <input type="hidden" name="lot_id" value="<?php echo $lot['lot_id']; ?>">
+<!-- Separate delete form -->
+<form action="delete_lot.php" method="POST" onsubmit="return confirm('Delete this lot?');" style="display:inline;">
+    <input type="hidden" name="lot_id" value="<?php echo htmlspecialchars($lot['lot_id']); ?>">
     <button type="submit" name="delete" style="background-color: #e74c3c;">Delete</button>
 </form>
 
-<!-- 🧠 JavaScript Logic -->
 <script>
 const form = document.getElementById('editLotForm');
-const inputs = form.querySelectorAll('input, select');
+const inputs = form.querySelectorAll('input, select, textarea');
 const editBtn = document.getElementById('editBtn');
 const confirmBtn = document.getElementById('confirmBtn');
 const cancelBtn = document.getElementById('cancelBtn');
+const viewActions = document.getElementById('viewActions');
+const editActions = document.getElementById('editActions');
+const viewHeader = document.querySelector('.view-lot-header h2');
 
-// Save initial values
+confirmBtn.addEventListener('click', () => {
+    console.log("Submit clicked!");
+});
+
+// Save initial values (excluding file inputs)
 const originalValues = {};
 inputs.forEach(input => {
     if (input.type !== 'file') {
@@ -79,17 +108,19 @@ inputs.forEach(input => {
 });
 
 editBtn.addEventListener('click', () => {
-    // Enable form fields
-    inputs.forEach(input => input.disabled = false);
+    inputs.forEach(input => {
+        input.disabled = false;
+        input.readOnly = false;
+    });
 
-    // Show confirm/cancel, hide edit
-    editBtn.style.display = 'none';
-    confirmBtn.style.display = 'inline-block';
-    cancelBtn.style.display = 'inline-block';
+    viewHeader.textContent = 'Edit Lot';
+    viewActions.style.display = 'none';
+    editActions.style.display = 'block';
 });
 
+
 cancelBtn.addEventListener('click', () => {
-    // Restore original values
+    // Restore original values (excluding file inputs)
     inputs.forEach(input => {
         if (input.type !== 'file') {
             input.value = originalValues[input.name];
@@ -97,9 +128,11 @@ cancelBtn.addEventListener('click', () => {
         input.disabled = true;
     });
 
+    // Revert modal header
+    viewHeader.textContent = 'View Lot';
+
     // Reset buttons
-    editBtn.style.display = 'inline-block';
-    confirmBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
+    viewActions.style.display = 'block';
+    editActions.style.display = 'none';
 });
 </script>
