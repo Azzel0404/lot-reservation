@@ -3,42 +3,31 @@
 <?php session_start(); ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+
+    <!-- Link to client.css -->
+    <link rel="stylesheet" href="../client/client.css">
+
+    <!-- Link to Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    
 </head>
 <body class="body">
 
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-4">
-    <a class="navbar-brand" href="#">User</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+<!-- Include Navbar -->
+<?php include('navbar.php'); ?>
 
-    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="available_lots.php">Lots</a></li>
-            <li class="nav-item"><a class="nav-link" href="my_reservations.php">Reservations</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Payments</a></li>
-            <li class="nav-item">
-                <a href="../logout.php" class="btn btn-outline-light ms-3">Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
-
+<!-- Hero Section -->
 <div class="hero">
     <div class="hero-text">
         Welcome to Lot Reservation System!
     </div>
 </div>
 
-
+<!-- Recommended Lots Section -->
 <div class="container my-5">
     <h2 class="text-center section-title">Recommended For You</h2>
     <div class="row g-4 justify-content-center">
@@ -54,13 +43,13 @@
 
         foreach ($lots as $lot): ?>
             <div class="col-md-3">
-                <div class="card">
-                    <img src="<?= $lot['img'] ?>" class="card-img-top" alt="Lot Image">
+                <div class="card shadow h-100">
+                    <img src="<?= $lot['img'] ?>" class="card-img-top" alt="Lot Image" style="height: 180px; object-fit: cover;">
                     <div class="card-body">
-                        <p>Lot Number: <?= $lot['num'] ?> <br>
-                        Size: <?= $lot['size'] ?> sqm <br>
-                        Location: <?= $lot['city'] ?> <br>
-                        Status: <span class="status-available">Available</span></p>
+                        <p><strong>Lot Number:</strong> <?= $lot['num'] ?> <br>
+                        <strong>Size:</strong> <?= $lot['size'] ?> sqm <br>
+                        <strong>Location:</strong> <?= $lot['city'] ?> <br>
+                        <strong>Status:</strong> <span class="status-available">Available</span></p>
                         <a href="#" class="btn btn-primary w-100">View</a>
                     </div>
                 </div>
@@ -69,6 +58,10 @@
 
     </div>
 </div>
+
+<!-- Link to Bootstrap JS (Optional for responsiveness) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
 
 </body>
 </html>

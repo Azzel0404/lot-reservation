@@ -1,55 +1,65 @@
 <!--admin/lots/create_lot.php-->
 <?php
 include('../../config/db.php');
+session_start();
 
-// Enable error reporting
+// Enable error reporting during development
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Check if form is submitted
+// Make sure uploads folder exists
+$uploadDir = 'uploads/';
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+
+// Allowed image types
+$allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
+
 if (isset($_POST['submit'])) {
-    // Collect data from the form
-    $lot_number = mysqli_real_escape_string($conn, $_POST['lot_number']);
-    $location = mysqli_real_escape_string($conn, $_POST['location']);
-    $size = $_POST['size_meter_square'];
-    $price = $_POST['price'];
+    $lot_number = trim($_POST['lot_number']);
+    $location = trim($_POST['location']);
+    $size = floatval($_POST['size_meter_square']);
+    $price = floatval($_POST['price']);
     $status = $_POST['status'];
 
-    // Handle file uploads
-    $aerial_image = $_FILES['aerial_image']['name'];
-    $numbered_image = $_FILES['numbered_image']['name'];
+    // Validate files
+    $aerial_image = $_FILES['aerial_image'];
+    $numbered_image = $_FILES['numbered_image'];
 
-    // Check for upload errors and move files
-    if ($_FILES['aerial_image']['error'] == 0) {
-        $aerial_image_temp = $_FILES['aerial_image']['tmp_name'];
-        $aerial_image_destination = 'uploads/' . $aerial_image;
-        move_uploaded_file($aerial_image_temp, $aerial_image_destination);
-    } else {
-        echo "Error uploading aerial image: " . $_FILES['aerial_image']['error'];
+    // Check image types
+    if (!in_array($aerial_image['type'], $allowed_types) || !in_array($numbered_image['type'], $allowed_types)) {
+        $_SESSION['error'] = "Invalid image type.";
+        header("Location: lots.php");
+        exit();
     }
 
-    if ($_FILES['numbered_image']['error'] == 0) {
-        $numbered_image_temp = $_FILES['numbered_image']['tmp_name'];
-        $numbered_image_destination = 'uploads/' . $numbered_image;
-        move_uploaded_file($numbered_image_temp, $numbered_image_destination);
-    } else {
-        echo "Error uploading numbered image: " . $_FILES['numbered_image']['error'];
-    }
+    // Move files
+    $aerial_image_name = time() . '_' . basename($aerial_image['name']);
+    $aerial_path = $uploadDir . $aerial_image_name;
+    move_uploaded_file($aerial_image['tmp_name'], $aerial_path);
 
-    // Insert lot data into the database using a prepared statement to prevent SQL injection
+    $numbered_image_name = time() . '_' . basename($numbered_image['name']);
+    $numbered_path = $uploadDir . $numbered_image_name;
+    move_uploaded_file($numbered_image['tmp_name'], $numbered_path);
+
+    // Insert into DB
     $stmt = $conn->prepare("INSERT INTO lot (lot_number, location, size_meter_square, price, status, aerial_image, numbered_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssddsss", $lot_number, $location, $size, $price, $status, $aerial_image, $numbered_image);
+    $stmt->bind_param("ssddsss", $lot_number, $location, $size, $price, $status, $aerial_image_name, $numbered_image_name);
 
     if ($stmt->execute()) {
+        $_SESSION['success'] = "Lot created successfully.";
         header("Location: lots.php");
         exit();
     } else {
-        echo "Error: " . $stmt->error;
+        $_SESSION['error'] = "Error: " . $stmt->error;
+        header("Location: lots.php");
+        exit();
     }
 }
 ?>
 
-<!-- HTML form to add a new lot -->
+<!-- HTML Form -->
 <form action="" method="POST" enctype="multipart/form-data">
     <h2>Add New Lot</h2>
     <input type="text" name="lot_number" placeholder="Lot Number" required>
@@ -61,8 +71,8 @@ if (isset($_POST['submit'])) {
         <option value="Reserved">Reserved</option>
     </select>
     <label>Aerial Image</label>
-    <input type="file" name="aerial_image" accept="image/*">
+    <input type="file" name="aerial_image" accept="image/*" required>
     <label>Numbered Image</label>
-    <input type="file" name="numbered_image" accept="image/*">
+    <input type="file" name="numbered_image" accept="image/*" required>
     <button type="submit" name="submit">Create Lot</button>
 </form>

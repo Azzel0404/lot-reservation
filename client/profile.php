@@ -104,12 +104,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Profile</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
+
     <h2>My Profile (Client)</h2>
     <a href="index.php">← Back to Dashboard</a>
 
@@ -124,8 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p><strong>Last Name:</strong> <?= htmlspecialchars($lastname) ?></p>
 
         <form method="POST">
-            <button type="submit" name="edit_profile" style="margin-top: 20px;">Edit Profile</button>
-            <button type="submit" name="change_password_button" style="margin-top: 20px;">Change Password</button>
+            <button type="submit" name="edit_profile">Edit Profile</button>
+            <button type="submit" name="change_password_button">Change Password</button>
         </form>
     <?php endif; ?>
 
@@ -135,29 +138,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success) : ?><p style="color: green;"><?= $success ?></p><?php endif; ?>
         <?php if ($error) : ?><p style="color: red;"><?= $error ?></p><?php endif; ?>
 
-        <form method="POST" style="max-width: 400px;">
+        <form method="POST">
             <label>Email:</label>
-            <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required><br><br>
+            <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required><br>
 
             <label>Phone:</label>
-            <input type="text" name="phone" value="<?= htmlspecialchars($phone) ?>" required><br><br>
+            <input type="text" name="phone" value="<?= htmlspecialchars($phone) ?>" required><br>
 
             <label>Address:</label>
-            <input type="text" name="address" value="<?= htmlspecialchars($address) ?>"><br><br>
+            <input type="text" name="address" value="<?= htmlspecialchars($address) ?>"><br>
 
             <label>First Name:</label>
-            <input type="text" name="firstname" value="<?= htmlspecialchars($firstname) ?>" required><br><br>
+            <input type="text" name="firstname" value="<?= htmlspecialchars($firstname) ?>" required><br>
 
             <label>Middle Name:</label>
-            <input type="text" name="middlename" value="<?= htmlspecialchars($middlename) ?>"><br><br>
+            <input type="text" name="middlename" value="<?= htmlspecialchars($middlename) ?>"><br>
 
             <label>Last Name:</label>
-            <input type="text" name="lastname" value="<?= htmlspecialchars($lastname) ?>" required><br><br>
+            <input type="text" name="lastname" value="<?= htmlspecialchars($lastname) ?>" required><br>
 
             <button type="submit" name="update_profile">Update Profile</button>
         </form>
 
-        <form method="POST" style="margin-top: 20px;">
+        <form method="POST">
             <button type="submit" name="back_to_profile">Back to Profile</button>
         </form>
     <?php endif; ?>
@@ -168,20 +171,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($pw_success) : ?><p style="color: green;"><?= $pw_success ?></p><?php endif; ?>
         <?php if ($pw_error) : ?><p style="color: red;"><?= $pw_error ?></p><?php endif; ?>
 
-        <form method="POST" style="max-width: 400px;">
+        <form method="POST">
             <label>Old Password:</label>
-            <input type="password" name="old_password" required><br><br>
+            <input type="password" name="old_password" required><br>
 
             <label>New Password:</label>
-            <input type="password" name="new_password" required><br><br>
+            <input type="password" name="new_password" required><br>
 
             <label>Confirm New Password:</label>
-            <input type="password" name="confirm_password" required><br><br>
+            <input type="password" name="confirm_password" required><br>
 
             <button type="submit" name="change_password">Change Password</button>
         </form>
 
-        <form method="POST" style="margin-top: 20px;">
+        <form method="POST">
             <button type="submit" name="back_to_profile">Back to Profile</button>
         </form>
     <?php endif; ?>
