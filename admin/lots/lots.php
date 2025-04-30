@@ -86,6 +86,33 @@ function openLotDetails(id) {
             document.getElementById('lotDetailsModal').style.display = 'block';
         });
 }
+
+function deleteLot(lotId) {
+    if (confirm("Are you sure you want to delete this lot? This action cannot be undone.")) {
+        const formData = new FormData();
+        formData.append('delete', '1');
+        formData.append('lot_id', lotId);
+
+        fetch('delete_lot.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(result => {
+            alert(result);
+            window.location.reload(); // Refresh to update the list
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Error deleting lot.");
+        });
+    }
+}
 </script>
 
 </body>

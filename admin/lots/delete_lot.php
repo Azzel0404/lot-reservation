@@ -21,13 +21,8 @@ if (isset($_POST['delete']) && is_numeric($_POST['lot_id'])) {
         $aerialPath = $uploadDir . $aerialImage;
         $numberedPath = $uploadDir . $numberedImage;
 
-        if (file_exists($aerialPath)) {
-            unlink($aerialPath);
-        }
-
-        if (file_exists($numberedPath)) {
-            unlink($numberedPath);
-        }
+        if (file_exists($aerialPath)) unlink($aerialPath);
+        if (file_exists($numberedPath)) unlink($numberedPath);
 
         // Step 3: Delete the database record
         $stmt = $conn->prepare("DELETE FROM lot WHERE lot_id = ?");
@@ -43,7 +38,11 @@ if (isset($_POST['delete']) && is_numeric($_POST['lot_id'])) {
         $_SESSION['error'] = "Lot not found.";
     }
 
-    header("Location: lots.php");
+    echo isset($_SESSION['success']) ? $_SESSION['success'] : $_SESSION['error'];
+    unset($_SESSION['success'], $_SESSION['error']);
     exit();
 }
+
+echo "Invalid request.";
+exit();
 ?>

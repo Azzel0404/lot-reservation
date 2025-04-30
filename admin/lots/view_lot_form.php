@@ -3,69 +3,64 @@
 <?php
 include('../../config/db.php');
 
-$lotId = mysqli_real_escape_string($conn, $_GET['id']);
-$result = mysqli_query($conn, "SELECT * FROM lot WHERE lot_id = $lotId");
-$lot = mysqli_fetch_assoc($result);
-if (!$lot) {
-    echo "Lot not found.";
-    exit();
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $query = "SELECT * FROM lot WHERE lot_id = $id";
+    $result = mysqli_query($conn, $query);
+    $lot = mysqli_fetch_assoc($result);
 }
 ?>
 
-<span class="close" onclick="document.getElementById('lotDetailsModal').style.display='none'">&times;</span>
+<h2 class="view-lot-header">Lot Details</h2>
 
-<div class="view-lot-header">
-    <h2>View Lot</h2>
-</div>
-
+<!-- Image Preview Container -->
 <div class="image-preview-container">
     <div>
-        <p><strong>Aerial Image</strong></p>
-        <img src="uploads/<?php echo htmlspecialchars($lot['aerial_image']); ?>" alt="Aerial Image">
+        <p><strong>Aerial Image:</strong></p>
+        <?php if (!empty($lot['aerial_image'])): ?>
+            <img src="uploads/<?php echo $lot['aerial_image']; ?>" alt="Aerial Image">
+        <?php else: ?>
+            <p>No image available</p>
+        <?php endif; ?>
     </div>
     <div>
-        <p><strong>Numbered Image</strong></p>
-        <img src="uploads/<?php echo htmlspecialchars($lot['numbered_image']); ?>" alt="Numbered Image">
+        <p><strong>Numbered Image:</strong></p>
+        <?php if (!empty($lot['numbered_image'])): ?>
+            <img src="uploads/<?php echo $lot['numbered_image']; ?>" alt="Numbered Image">
+        <?php else: ?>
+            <p>No image available</p>
+        <?php endif; ?>
     </div>
 </div>
 
-<form>
-    <label>Lot Number:</label>
-    <input type="text" value="<?php echo htmlspecialchars($lot['lot_number']); ?>" readonly>
-    <label>Location:</label>
-    <input type="text" value="<?php echo htmlspecialchars($lot['location']); ?>" readonly>
-    <label>Size (sq m):</label>
-    <input type="number" value="<?php echo htmlspecialchars($lot['size_meter_square']); ?>" readonly>
-    <label>Price:</label>
-    <input type="number" value="<?php echo htmlspecialchars($lot['price']); ?>" readonly>
-    <label>Status:</label>
-    <input type="text" value="<?php echo htmlspecialchars($lot['status']); ?>" readonly>
+<!-- Lot Edit Form -->
+<form action="update_lot.php" method="POST" enctype="multipart/form-data" id="editLotForm">
+    <input type="hidden" name="lot_id" value="<?php echo $lot['lot_id']; ?>">
+
+    <label for="lot_number">Lot Number:</label>
+    <input type="text" id="lot_number" name="lot_number" value="<?php echo $lot['lot_number']; ?>" required>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" value="<?php echo $lot['location']; ?>" required>
+
+    <label for="size_meter_square">Size (m²):</label>
+    <input type="number" id="size_meter_square" name="size_meter_square" step="0.01" value="<?php echo $lot['size_meter_square']; ?>" required>
+
+    <label for="price">Price (₱):</label>
+    <input type="number" id="price" name="price" step="0.01" value="<?php echo $lot['price']; ?>" required>
+
+    <label for="status">Status:</label>
+    <select id="status" name="status" required>
+        <option value="Available" <?php if ($lot['status'] === 'Available') echo 'selected'; ?>>Available</option>
+        <option value="Reserved" <?php if ($lot['status'] === 'Reserved') echo 'selected'; ?>>Reserved</option>
+    </select>
+
+    <label for="aerial_image">Change Aerial Image (optional):</label>
+    <input type="file" id="aerial_image" name="aerial_image">
+
+    <label for="numbered_image">Change Numbered Image (optional):</label>
+    <input type="file" id="numbered_image" name="numbered_image">
+
+    <button type="submit" id="editBtn" name="update_lot">Update Lot</button>
+    <button type="button" style="background-color:#e74c3c; color:white;" onclick="deleteLot(<?php echo $lot['lot_id']; ?>)">Delete Lot</button>
 </form>
-
-<!-- Buttons -->
-<div style="display: flex; gap: 10px; margin-top: 20px;">
-    <form action="delete_lot.php" method="POST" onsubmit="return confirm('Delete this lot?');">
-        <input type="hidden" name="lot_id" value="<?php echo htmlspecialchars($lot['lot_id']); ?>">
-        <button type="submit" name="delete" style="background-color: #e74c3c;">Delete</button>
-    </form>
-    <button id="editBtn" onclick="openEditModal(<?php echo $lot['lot_id']; ?>)">Edit</button>
-</div>
-
-<!-- Add/Edit Modal -->
-<div id="lotDetailsModal" class="modal">
-    <div class="modal-content" id="lotDetailsContent">
-        <!-- Content will be loaded via JS -->
-    </div>
-</div>
-
-<script>
-function openEditModal(id) {
-    fetch('edit_lot_modal.php?id=' + id)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('lotDetailsContent').innerHTML = html;
-            document.getElementById('lotDetailsModal').style.display = 'block';
-        });
-}
-</script>
-
