@@ -73,4 +73,5 @@ CREATE TABLE agent_commission (
 
 ALTER TABLE lot
 ADD COLUMN aerial_image VARCHAR(255) AFTER status,
-ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image;
+ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image,
+ADD COLUMN pdf_file VARCHAR(255) AFTER numbered_image;

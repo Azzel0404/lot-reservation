@@ -1,10 +1,10 @@
 <!--/config/db.php-->
 <?php
 $host = 'localhost';
-$db = 'lot_reservation';
+$db = 'lot-reservation-system';
 $user = 'root';
 $pass = "";
-$port = 3306;
+$port = 3307;
 
 // Establish the connection
 $conn = new mysqli($host, $user, $pass, $db, $port);
