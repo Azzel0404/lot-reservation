@@ -8,8 +8,7 @@
         <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
             <li class="nav-item"><a class="nav-link active" href="available_lots.php">Lots</a></li>
-            <li class="nav-item"><a class="nav-link" href="my_reservations.php">Reservations</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Payments</a></li>
+            <li class="nav-item"><a class="nav-link" href="reservations.php">Reservations</a></li>
             <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
             <li class="nav-item">
                 <a href="../logout.php" class="btn btn-outline-light ms-3">Logout</a>
