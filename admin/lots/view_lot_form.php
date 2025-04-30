@@ -11,6 +11,9 @@ if (isset($_GET['id'])) {
 }
 ?>
 
+<!-- Modal Close Button -->
+<span class="close" onclick="closeLotDetailsModal()">&times;</span>
+
 <h2 class="view-lot-header">Lot Details</h2>
 
 <!-- Image Preview Container -->
