@@ -4,7 +4,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lot-reservation/config/db.php';
 
 if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
     switch ($_SESSION['role']) {
-        case 'ADMIN': header("Location: admin/index.php"); exit();
+        case 'ADMIN': header("Location: admin/dashboard/index.php"); exit();
         case 'AGENT': header("Location: agent/index.php"); exit();
         case 'CLIENT': header("Location: client/index.php"); exit();
         default: header("Location: index.php"); exit();
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $user['role'];
 
                 switch ($user['role']) {
-                    case 'ADMIN': header("Location: admin/index.php"); exit();
+                    case 'ADMIN': header("Location: admin/dashboard/index.php"); exit();
                     case 'AGENT': header("Location: agent/index.php"); exit();
                     case 'CLIENT': header("Location: client/index.php"); exit();
                     default: $errorMessage = 'Unknown role. Access denied.'; break;
