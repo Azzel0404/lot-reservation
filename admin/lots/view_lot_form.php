@@ -36,6 +36,16 @@ if (isset($_GET['id'])) {
     </div>
 </div>
 
+<!-- PDF Preview/Download -->
+<div style="margin: 20px 0;">
+    <p><strong>PDF File:</strong></p>
+    <?php if (!empty($lot['pdf_file'])): ?>
+        <a href="uploads/<?php echo $lot['pdf_file']; ?>" target="_blank">View/Download PDF</a>
+    <?php else: ?>
+        <p>No PDF uploaded.</p>
+    <?php endif; ?>
+</div>
+
 <!-- Lot Edit Form -->
 <form action="update_lot.php" method="POST" enctype="multipart/form-data" id="editLotForm">
     <input type="hidden" name="lot_id" value="<?php echo $lot['lot_id']; ?>">
@@ -59,10 +69,13 @@ if (isset($_GET['id'])) {
     </select>
 
     <label for="aerial_image">Change Aerial Image (optional):</label>
-    <input type="file" id="aerial_image" name="aerial_image">
+    <input type="file" id="aerial_image" name="aerial_image" accept="image/*">
 
     <label for="numbered_image">Change Numbered Image (optional):</label>
-    <input type="file" id="numbered_image" name="numbered_image">
+    <input type="file" id="numbered_image" name="numbered_image" accept="image/*">
+
+    <label for="pdf_file">Replace PDF File (optional):</label>
+    <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf">
 
     <button type="submit" id="editBtn" name="update_lot">Update Lot</button>
     <button type="button" style="background-color:#e74c3c; color:white;" onclick="deleteLot(<?php echo $lot['lot_id']; ?>)">Delete Lot</button>

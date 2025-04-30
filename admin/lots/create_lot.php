@@ -34,7 +34,7 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    // Move files
+    // Move image files
     $aerial_image_name = time() . '_' . basename($aerial_image['name']);
     $aerial_path = $uploadDir . $aerial_image_name;
     move_uploaded_file($aerial_image['tmp_name'], $aerial_path);
@@ -43,9 +43,24 @@ if (isset($_POST['submit'])) {
     $numbered_path = $uploadDir . $numbered_image_name;
     move_uploaded_file($numbered_image['tmp_name'], $numbered_path);
 
+    // Handle optional PDF file
+    $pdf_file_name = null;
+    if (!empty($_FILES['pdf_file']['name'])) {
+        $pdf_file = $_FILES['pdf_file'];
+        if ($pdf_file['type'] === 'application/pdf') {
+            $pdf_file_name = time() . '_' . basename($pdf_file['name']);
+            $pdf_path = $uploadDir . $pdf_file_name;
+            move_uploaded_file($pdf_file['tmp_name'], $pdf_path);
+        } else {
+            $_SESSION['error'] = "Uploaded file must be a PDF.";
+            header("Location: lots.php");
+            exit();
+        }
+    }
+
     // Insert into DB
-    $stmt = $conn->prepare("INSERT INTO lot (lot_number, location, size_meter_square, price, status, aerial_image, numbered_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssddsss", $lot_number, $location, $size, $price, $status, $aerial_image_name, $numbered_image_name);
+    $stmt = $conn->prepare("INSERT INTO lot (lot_number, location, size_meter_square, price, status, aerial_image, numbered_image, pdf_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssddssss", $lot_number, $location, $size, $price, $status, $aerial_image_name, $numbered_image_name, $pdf_file_name);
 
     if ($stmt->execute()) {
         $_SESSION['success'] = "Lot created successfully.";
@@ -66,13 +81,20 @@ if (isset($_POST['submit'])) {
     <input type="text" name="location" placeholder="Location" required>
     <input type="number" step="0.01" name="size_meter_square" placeholder="Size in m²" required>
     <input type="number" step="0.01" name="price" placeholder="Price" required>
+    
     <select name="status" required>
         <option value="Available">Available</option>
         <option value="Reserved">Reserved</option>
     </select>
+
     <label>Aerial Image</label>
     <input type="file" name="aerial_image" accept="image/*" required>
+
     <label>Numbered Image</label>
     <input type="file" name="numbered_image" accept="image/*" required>
+
+    <label>PDF File (optional)</label>
+    <input type="file" name="pdf_file" accept="application/pdf">
+
     <button type="submit" name="submit">Create Lot</button>
 </form>

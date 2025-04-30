@@ -1,5 +1,5 @@
+<!--admin/lots/update_lot.php-->
 <?php
-session_start();
 include('../../config/db.php');
 
 if (isset($_POST['update_lot'])) {
@@ -10,10 +10,6 @@ if (isset($_POST['update_lot'])) {
     $price = $_POST['price'];
     $status = $_POST['status'];
 
-    // File handling
-    $aerial_image = $_FILES['aerial_image']['name'];
-    $numbered_image = $_FILES['numbered_image']['name'];
-
     $sql_parts = [
         "lot_number = '$lot_number'",
         "location = '$location'",
@@ -22,18 +18,39 @@ if (isset($_POST['update_lot'])) {
         "status = '$status'"
     ];
 
-    if ($aerial_image) {
-        $target = "uploads/" . basename($aerial_image);
-        move_uploaded_file($_FILES['aerial_image']['tmp_name'], $target);
-        $sql_parts[] = "aerial_image = '$aerial_image'";
+    // Handle aerial image upload
+    if (!empty($_FILES['aerial_image']['name'])) {
+        $aerial_image_name = time() . '_' . basename($_FILES['aerial_image']['name']);
+        $aerial_target = "uploads/" . $aerial_image_name;
+        move_uploaded_file($_FILES['aerial_image']['tmp_name'], $aerial_target);
+        $sql_parts[] = "aerial_image = '$aerial_image_name'";
     }
 
-    if ($numbered_image) {
-        $target = "uploads/" . basename($numbered_image);
-        move_uploaded_file($_FILES['numbered_image']['tmp_name'], $target);
-        $sql_parts[] = "numbered_image = '$numbered_image'";
+    // Handle numbered image upload
+    if (!empty($_FILES['numbered_image']['name'])) {
+        $numbered_image_name = time() . '_' . basename($_FILES['numbered_image']['name']);
+        $numbered_target = "uploads/" . $numbered_image_name;
+        move_uploaded_file($_FILES['numbered_image']['tmp_name'], $numbered_target);
+        $sql_parts[] = "numbered_image = '$numbered_image_name'";
     }
 
+    // Handle PDF file upload
+    if (!empty($_FILES['pdf_file']['name'])) {
+        $pdf_file_name = time() . '_' . basename($_FILES['pdf_file']['name']);
+        $pdf_target = "uploads/" . $pdf_file_name;
+
+        // Validate PDF MIME type
+        if ($_FILES['pdf_file']['type'] !== 'application/pdf') {
+            $_SESSION['error'] = "Invalid PDF file.";
+            header("Location: lots.php");
+            exit();
+        }
+
+        move_uploaded_file($_FILES['pdf_file']['tmp_name'], $pdf_target);
+        $sql_parts[] = "pdf_file = '$pdf_file_name'";
+    }
+
+    // Combine all parts and run query
     $sql = "UPDATE lot SET " . implode(', ', $sql_parts) . " WHERE lot_id = $lot_id";
 
     if (mysqli_query($conn, $sql)) {
@@ -43,6 +60,6 @@ if (isset($_POST['update_lot'])) {
     }
 
     header("Location: lots.php");
-    exit;
+    exit();
 }
 ?>
