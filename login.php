@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 switch ($user['role']) {
                     case 'ADMIN': header("Location: admin/dashboard/index.php"); exit();
-                    case 'AGENT': header("Location: agent/index.php"); exit();
+                    case 'AGENT': header("Location: agent/dashboard.php"); exit();
                     case 'CLIENT': header("Location: client/index.php"); exit();
                     default: $errorMessage = 'Unknown role. Access denied.'; break;
                 }
