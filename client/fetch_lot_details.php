@@ -36,7 +36,7 @@ if (!$lot) {
         <p><strong>Price:</strong> ₱<?= number_format($lot['price'], 2) ?></p>
         <p><strong>Status:</strong> <?= htmlspecialchars($lot['status']) ?></p>
         <?php if (!empty($lot['pdf_file'])): ?>
-            <p><strong>PDF:</strong> <a href="../admin/lots/uploads/<?= htmlspecialchars($lot['pdf_file']) ?>" target="_blank">View File</a></p>
+            <p><strong>Download the form for reservation:</strong> <a href="../admin/lots/uploads/<?= htmlspecialchars($lot['pdf_file']) ?>" download>Download PDF</a></p>
         <?php endif; ?>
     </div>
 </div>
