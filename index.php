@@ -360,7 +360,7 @@ session_start();
         <div class="nav-links">
             <div class="logo">
                 <i class="fas fa-map-marked-alt"></i>
-                <span>ReserveIt</span>
+                <span>LotReserve</span>
             </div>
             <ul>
                 <li><a href="#" class="active" onclick="showSection('home')"><i class="fas fa-home"></i>Home</a></li>

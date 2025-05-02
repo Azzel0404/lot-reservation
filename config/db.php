@@ -1,4 +1,4 @@
-<!--/config/db.php-->
+<!--lot-reservation/config/db.php-->
 <?php
 $host = 'localhost';
 $db = 'lot-reservation-system';

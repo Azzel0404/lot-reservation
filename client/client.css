@@ -1,4 +1,4 @@
-/*  client/client.css */
+/* lot-reservation/client/clients.css */
 /* General Styles for the Profile Page */
 body {
     font-family: Arial, sans-serif;
@@ -115,4 +115,15 @@ p[style="color: red;"] {
 .navbar-custom .btn-outline-light:hover {
     background-color: #ffffff;
     color: #0f2027;
+}
+
+.lot-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.lot-card:hover {
+    transform: scale(1.03);
+    transition: 0.2s ease-in-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
