@@ -1,3 +1,4 @@
+<!--client/reservations.php-->
 <?php
 // Include database connection
 include('../config/db.php');  // Ensure this path is correct

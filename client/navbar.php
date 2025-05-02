@@ -1,3 +1,4 @@
+<!--client/navbar.php-->
 <nav class="navbar navbar-expand-lg navbar-custom px-4">
     <a class="navbar-brand" href="#">User</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">

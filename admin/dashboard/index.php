@@ -2,6 +2,7 @@
 session_start();
 include('../../config/db.php');
 
+
 // Fetch counts from the database
 $total_reservations_query = "SELECT COUNT(*) AS total FROM reservation";
 $total_reservations_result = mysqli_query($conn, $total_reservations_query);
