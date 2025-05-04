@@ -3,11 +3,12 @@
    Main Content Styles
 ========================================= */
 .main-content {
-    margin-left: 220px; /* Accounts for the sidebar width */
-    margin-top: 70px;   /* Leaves space for the top bar */
-    padding: 20px;
+    padding: 2rem;
+    margin-left: 250px; /* adjust if your sidebar is wider/narrower */
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    gap: 2rem; /* space between sections */
 }
-
 
 /* =========================================
    Sidebar Styles (Consistent with dashboard.css)
@@ -122,17 +123,14 @@
 
 /* Reservation List Section */
 .reservation-list {
-    margin-left: 50%;         /* Align the reservation list to the right */
-    width: 45%;               /* Adjust width to fit on the right side */
-    background-color: #ecf0f1;
-    padding: 20px;
+    background: #f1f5f8;
+    padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
 .reservation-list h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    margin-top: 0;
 }
 
 .reservation-table {

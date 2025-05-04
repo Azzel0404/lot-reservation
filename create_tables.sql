@@ -54,9 +54,7 @@ CREATE TABLE reservation (
     status VARCHAR(10) NOT NULL CHECK (status IN ('Approved', 'Expired')),
     reservation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_approved DATETIME,
-    expiry_date DATETIME,
     request_form LONGBLOB,
-    signed_form LONGBLOB,
     FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY (lot_id) REFERENCES lot(lot_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_id) REFERENCES payment(payment_id) ON DELETE CASCADE
@@ -118,3 +116,23 @@ END //
 
 DELIMITER ;
 CALL sp_calculate_agent_commission_dynamic(1, 10, 5.00);
+
+DELIMITER //
+
+CREATE PROCEDURE sp_calculate_reservation_fee (
+    IN p_lot_id INT,
+    OUT p_reservation_fee DECIMAL(12,2)
+)
+BEGIN
+    DECLARE v_lot_price DECIMAL(12,2);
+
+    -- Get the lot price linked to the given lot ID
+    SELECT price INTO v_lot_price
+    FROM lot
+    WHERE lot_id = p_lot_id;
+
+    -- Calculate the reservation fee as 10% of the lot price
+    SET p_reservation_fee = v_lot_price * 0.10;
+END //
+
+DELIMITER ;
