@@ -180,38 +180,39 @@ button:hover {
             font-family: 'Segoe UI', sans-serif;
 }
 
-/* Right-align navbar content */
+/*
+Right-align navbar content 
 .navbar-custom .navbar-nav {
-    margin-left: auto; /* Push all nav items to the right */
+    margin-left: auto; Push all nav items to the right 
 }
 
-/* Custom background for navbar */
+ Custom background for navbar 
 .navbar-custom {
     background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
 }
 
-/* Optional: style for active link */
+ Optional: style for active link 
 .navbar-custom .nav-link.active {
     font-weight: bold;
     border-bottom: 2px solid #fff;
 }
 
-/* Logout button spacing */
+ Logout button spacing 
 .navbar-custom .btn-outline-light {
     margin-left: 1rem;
 }
 
-/* Navbar brand padding for consistency */
+ Navbar brand padding for consistency 
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
     padding-right: 1.5rem;
 }
 
-
 .navbar-custom {
     background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
 }
+*/
 
 .hero {
     background: url('../images/lot.jpg') center/cover no-repeat;

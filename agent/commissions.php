@@ -1,132 +1,87 @@
-<?php session_start(); ?>
+<?php
+session_start();
+
+// Check if the user is logged in as an agent
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'AGENT') {
+    header("Location: ../login.php"); // Redirect to login if not an agent
+    exit();
+}
+
+// Include database connection
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lot-reservation/config/db.php';
+
+// Get the current agent's ID
+$agent_user_id = $_SESSION['user_id'];
+
+try {
+    // Fetch the agent's information to display the name
+    $agent_query = "SELECT firstname, lastname FROM agent WHERE user_id = ?";
+    $stmt = $conn->prepare($agent_query);
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $agent_result = $stmt->get_result();
+    if ($agent_row = $agent_result->fetch_assoc()) {
+        $agent_firstname = htmlspecialchars($agent_row['firstname']);
+        $agent_lastname = htmlspecialchars($agent_row['lastname']);
+    } else {
+        // Handle the case where agent info isn't found (shouldn't happen if logged in as agent)
+        $agent_firstname = "Agent";
+        $agent_lastname = "";
+    }
+    $stmt->close();
+
+    // Fetch commission details for the current agent
+    $commission_query = "SELECT
+                            c.firstname AS client_firstname,
+                            c.lastname AS client_lastname,
+                            l.lot_number,
+                            r.reservation_fee,
+                            ac.commission_fee
+                        FROM agent_commission ac
+                        JOIN reservation r ON ac.reservation_id = r.reservation_id
+                        JOIN client c ON r.client_id = c.client_id
+                        JOIN lot l ON r.lot_id = l.lot_id
+                        JOIN agent a ON ac.agent_id = a.agent_id
+                        WHERE a.user_id = ?";
+    $stmt = $conn->prepare($commission_query);
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $commissions_result = $stmt->get_result();
+    $commissions = $commissions_result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    // Calculate total commission
+    $total_commission = 0;
+    foreach ($commissions as $commission) {
+        $total_commission += $commission['commission_fee'];
+    }
+
+    // For simplicity in this example, we'll consider all calculated commissions as "pending"
+    $pending_commission = $total_commission; // You might have a specific status in a real application
+
+} catch (Exception $e) {
+    $error_message = "Database error: " . $e->getMessage();
+    $commissions = [];
+    $total_commission = 0;
+    $pending_commission = 0;
+}
+
+$conn->close();
+?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Resenwelt - Commissions</title>
+    <title>ReserveIt - Commissions</title>
+    <link rel="stylesheet" href="../agent/agent.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4cc9f0;
-            --dark-color: #1a1b41;
-            --light-color: #f8f9fa;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --info-color: #2196f3;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa;
-        }
-        
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color), var(--secondary-color));
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-brand {
-            font-weight: 700;
-            color: white;
-            letter-spacing: 1px;
-            font-size: 1.3rem;
-            padding: 1rem 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .nav-link {
-            border-radius: 6px;
-            margin-bottom: 4px;
-            padding: 10px 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(255,255,255,0.1);
-            transform: translateX(3px);
-        }
-        
-        .topbar {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1rem 1.5rem;
-        }
-        
-        .content-card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            background-color: white;
-            padding: 1.5rem;
-        }
-        
-        .table th {
-            font-weight: 600;
-            color: var(--dark-color);
-            border-top: none;
-            background-color: #f8f9fa;
-        }
-        
-        .badge-status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        .badge-approved {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .badge-expired {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .commission-value {
-            font-weight: 600;
-            color: var(--success-color);
-        }
-        
-        .received-badge {
-            background-color: #e6f7ee;
-            color: #0d6832;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .summary-card {
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-        }
-        
-        .total-commission {
-            background: linear-gradient(135deg, #4caf50, #66bb6a);
-            color: white;
-        }
-        
-        .pending-commission {
-            background: linear-gradient(135deg, #ff9800, #ffa726);
-            color: white;
-        }
-    </style>
 </head>
 <body class="d-flex">
-    
-    <!-- Sidebar -->
-    <div class="sidebar p-4" style="width: 250px; height: 100vh;">
-        <div class="sidebar-brand">ReserveIt</div>
-        <ul class="nav flex-column">
+
+    <div class="sidebar p-4" style="width: 250px; height: 100vh; background-color: #343a40;">
+        <div class="sidebar-brand text-white">ReserveIt</div>
+        <ul class="nav flex-column mt-3">
             <li class="nav-item">
                 <a href="index.php" class="nav-link text-white">
                     <i class="fas fa-chart-line me-2"></i> Dashboard
@@ -138,7 +93,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="commissions.php" class="nav-link text-white active">
+                <a href="commissions.php" class="nav-link text-white active" style="background-color: rgba(255, 255, 255, 0.1);">
                     <i class="fas fa-hand-holding-usd me-2"></i> Commissions
                 </a>
             </li>
@@ -150,29 +105,30 @@
         </ul>
     </div>
 
-    <!-- Main content -->
-    <div class="flex-grow-1">
-        <!-- Topbar -->
-        <div class="topbar d-flex justify-content-between align-items-center">
+    <div class="flex-grow-1 bg-light">
+        <div class="topbar d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
             <h5 class="mb-0 fw-bold">Commissions</h5>
             <div class="d-flex align-items-center">
-                <span class="fw-medium me-3">Welcome, Agent</span>
+                <!-- <span class="fw-medium me-3">Welcome, <?php echo $agent_firstname . ' ' . $agent_lastname; ?></span>-->
+                <span class="fw-medium me-3">Welcome, <?php echo htmlspecialchars($_SESSION['firstname'] ?? 'Agent'); ?></span>
                 <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                     <i class="fas fa-user"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Commissions Content -->
         <div class="p-4">
-            <!-- Commission Summary -->
+            <?php if (isset($error_message)): ?>
+                <div class="alert alert-danger"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="summary-card total-commission">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">Total Commission</h6>
-                                <h3 class="mb-0">₱45,000</h3>
+                                <h3 class="mb-0">₱<?php echo number_format($total_commission, 2); ?></h3>
                             </div>
                             <i class="fas fa-coins fa-2x opacity-50"></i>
                         </div>
@@ -183,7 +139,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">Pending Commission</h6>
-                                <h3 class="mb-0">₱12,000</h3>
+                                <h3 class="mb-0">₱<?php echo number_format($pending_commission, 2); ?></h3>
                             </div>
                             <i class="fas fa-clock fa-2x opacity-50"></i>
                         </div>
@@ -191,7 +147,6 @@
                 </div>
             </div>
 
-            <!-- Commissions Table -->
             <div class="content-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Commission Details</h5>
@@ -199,12 +154,14 @@
                         <button class="btn btn-sm btn-outline-secondary me-2">
                             <i class="fas fa-filter me-1"></i> Filter
                         </button>
+                        <!--
                         <button class="btn btn-sm btn-primary">
                             <i class="fas fa-download me-1"></i> Export
                         </button>
+                        -->
                     </div>
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
@@ -212,52 +169,29 @@
                                 <th>Client Name</th>
                                 <th>Lot Reserved</th>
                                 <th>Reservation Fee</th>
-                                <th>Commission Rate</th>
                                 <th>Earned Commission</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>John Doe</td>
-                                <td>Lot 5</td>
-                                <td class="commission-value">₱30,000</td>
-                                <td>5%</td>
-                                <td class="commission-value">₱1,500</td>
-                            </tr>
-                            <tr>
-                                <td>Jane Smith</td>
-                                <td>Lot 8</td>
-                                <td class="commission-value">₱25,000</td>
-                                <td>5%</td>
-                                <td class="commission-value">₱1,250</td>
-                            </tr>
-                            <tr>
-                                <td>Robert Lee</td>
-                                <td>Lot 2</td>
-                                <td class="commission-value">₱15,000</td>
-                                <td>5%</td>
-                                <td class="commission-value">₱750</td>
-                            </tr>
+                            <?php if (empty($commissions)): ?>
+                                <tr><td colspan="4" class="text-center">No commissions found.</td></tr>
+                            <?php else: ?>
+                                <?php foreach ($commissions as $commission): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($commission['client_firstname'] . ' ' . $commission['client_lastname']); ?></td>
+                                        <td><?php echo htmlspecialchars($commission['lot_number']); ?></td>
+                                        <td class="commission-value">₱<?php echo number_format($commission['reservation_fee'], 2); ?></td>
+                                        <td class="commission-value">₱<?php echo number_format($commission['commission_fee'], 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted">Showing 3 of 15 commissions</div>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                    <div class="text-muted">Showing <?php echo count($commissions); ?> commissions</div>
+                    </div>
             </div>
         </div>
     </div>

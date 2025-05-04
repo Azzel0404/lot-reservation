@@ -1,7 +1,7 @@
 <!--lot-reservation/config/db.php-->
 <?php
 $host = 'localhost';
-$db = 'lot-reservation-system';
+$db = 'lot_reservation_system';
 $user = 'root';
 $pass = "";
 $port = 3307;

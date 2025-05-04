@@ -360,7 +360,7 @@ session_start();
         <div class="nav-links">
             <div class="logo">
                 <i class="fas fa-map-marked-alt"></i>
-                <span>LotReserve</span>
+                <span>ReserveIt</span>
             </div>
             <ul>
                 <li><a href="#" class="active" onclick="showSection('home')"><i class="fas fa-home"></i>Home</a></li>
@@ -439,7 +439,7 @@ session_start();
             <div class="contact-card">
                 <i class="fas fa-envelope"></i>
                 <h3>Email</h3>
-                <p>support@lotreserve.com</p>
+                <p>support@ReserveIt.com</p>
             </div>
             <div class="contact-card">
                 <i class="fas fa-phone-alt"></i>

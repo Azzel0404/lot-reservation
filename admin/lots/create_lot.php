@@ -1,7 +1,10 @@
 <!--admin/lots/create_lot.php-->
 <?php
 include('../../config/db.php');
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 
 // Enable error reporting during development
 error_reporting(E_ALL);

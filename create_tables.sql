@@ -75,3 +75,46 @@ ALTER TABLE lot
 ADD COLUMN aerial_image VARCHAR(255) AFTER status,
 ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image,
 ADD COLUMN pdf_file VARCHAR(255) AFTER numbered_image;
+
+DELIMITER //
+
+DELIMITER //
+
+CREATE PROCEDURE sp_calculate_agent_commission_dynamic (
+    IN p_agent_id INT,
+    IN p_reservation_id INT,
+    IN p_commission_percent DECIMAL(5,2) -- e.g., 3.00 for 3%
+)
+BEGIN
+    DECLARE v_commission_fee DECIMAL(12,2);
+    DECLARE v_lot_price DECIMAL(12,2);
+    DECLARE existing_count INT;
+
+    -- Get the lot price linked to the reservation
+    SELECT l.price INTO v_lot_price
+    FROM reservation r
+    JOIN lot l ON r.lot_id = l.lot_id
+    WHERE r.reservation_id = p_reservation_id;
+
+    -- Calculate commission fee
+    SET v_commission_fee = v_lot_price * (p_commission_percent / 100);
+
+    -- Check if a commission record already exists
+    SELECT COUNT(*) INTO existing_count
+    FROM agent_commission
+    WHERE agent_id = p_agent_id AND reservation_id = p_reservation_id;
+
+    IF existing_count > 0 THEN
+        -- Update existing commission
+        UPDATE agent_commission
+        SET commission_fee = v_commission_fee
+        WHERE agent_id = p_agent_id AND reservation_id = p_reservation_id;
+    ELSE
+        -- Insert new commission
+        INSERT INTO agent_commission (agent_id, reservation_id, commission_fee)
+        VALUES (p_agent_id, p_reservation_id, v_commission_fee);
+    END IF;
+END //
+
+DELIMITER ;
+CALL sp_calculate_agent_commission_dynamic(1, 10, 5.00);

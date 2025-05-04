@@ -1,144 +1,140 @@
-<?php session_start(); ?>
+<?php
+session_start();
+require_once '../config/db.php';
+
+// Check if user is logged in as agent
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'AGENT') {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Get agent ID from session
+// Assuming your agent's user_id is stored in the session
+$agent_user_id = $_SESSION['user_id'];
+
+// Initialize variables
+$total_clients = 0;
+$total_commission = 0;
+$approved_reservations = 0;
+$pending_reservations = 0;
+$recent_activities = [];
+
+try {
+    // Check database connection
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+
+    // 1. Get total assisted clients
+    $clients_query = "SELECT COUNT(DISTINCT c.client_id) as total
+                      FROM client c
+                      WHERE c.agent_id = (SELECT a.agent_id FROM agent a WHERE a.user_id = ?)";
+    $stmt = $conn->prepare($clients_query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $total_clients = $row['total'] ?? 0;
+    $stmt->close();
+
+    // 2. Get total commission earned
+    $commission_query = "SELECT SUM(ac.commission_fee) as total
+                           FROM agent_commission ac
+                           WHERE ac.agent_id = (SELECT a.agent_id FROM agent a WHERE a.user_id = ?)";
+    $stmt = $conn->prepare($commission_query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $total_commission = $row['total'] ?? 0;
+    $stmt->close();
+
+    // 3. Get approved reservations count
+    $approved_query = "SELECT COUNT(*) as total
+                       FROM reservation r
+                       JOIN client c ON r.client_id = c.client_id
+                       WHERE c.agent_id = (SELECT a.agent_id FROM agent a WHERE a.user_id = ?)
+                         AND r.status = 'Approved'";
+    $stmt = $conn->prepare($approved_query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $approved_reservations = $row['total'] ?? 0;
+    $stmt->close();
+
+    // 4. Get pending reservations count
+    $pending_query = "SELECT COUNT(*) as total
+                      FROM reservation r
+                      JOIN client c ON r.client_id = c.client_id
+                      WHERE c.agent_id = (SELECT a.agent_id FROM agent a WHERE a.user_id = ?)
+                        AND r.status = 'Expired'"; // Assuming 'Expired' means pending in your context
+    $stmt = $conn->prepare($pending_query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $pending_reservations = $row['total'] ?? 0;
+    $stmt->close();
+
+    // 5. Get recent activities
+    $activities_query = "SELECT
+                             c.firstname, c.lastname,
+                             r.status,
+                             l.lot_number,
+                             r.reservation_date,
+                             CASE
+                                 WHEN r.status = 'Approved' THEN 'Reservation Approved'
+                                 WHEN r.status = 'Expired' THEN 'Reservation Expired'
+                                 ELSE r.status
+                             END as action_taken
+                         FROM reservation r
+                         JOIN client c ON r.client_id = c.client_id
+                         JOIN lot l ON r.lot_id = l.lot_id
+                         WHERE c.agent_id = (SELECT a.agent_id FROM agent a WHERE a.user_id = ?)
+                         ORDER BY r.reservation_date DESC
+                         LIMIT 5";
+    $stmt = $conn->prepare($activities_query);
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("i", $agent_user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $recent_activities[] = $row;
+    }
+    $stmt->close();
+
+} catch (Exception $e) {
+    $_SESSION['error'] = "Database error: " . $e->getMessage();
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Agent Dashboard</title>
+    <link rel="stylesheet" href="../agent/agent.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4cc9f0;
-            --dark-color: #1a1b41;
-            --light-color: #f8f9fa;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --info-color: #2196f3;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa;
-        }
-        
-        .sidebar {
-            background: linear-gradient(135deg, var(--dark-color), var(--secondary-color));
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar:hover {
-            box-shadow: 4px 0 15px rgba(0,0,0,0.15);
-        }
-        
-        .sidebar-brand {
-            font-weight: 700;
-            color: white;
-            letter-spacing: 1px;
-            font-size: 1.3rem;
-            padding: 1rem 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .nav-link {
-            border-radius: 6px;
-            margin-bottom: 4px;
-            padding: 10px 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(255,255,255,0.1);
-            transform: translateX(3px);
-        }
-        
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            margin-right: 10px;
-        }
-        
-        .topbar {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1rem 1.5rem;
-        }
-        
-        .stat-card {
-            border-radius: 10px;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-        }
-        
-        .stat-card i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
-        
-        .stat-card .count {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .stat-card .label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .content-card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            background-color: white;
-            padding: 1.5rem;
-        }
-        
-        .table th {
-            font-weight: 600;
-            color: var(--dark-color);
-            border-top: none;
-        }
-        
-        .table td {
-            vertical-align: middle;
-        }
-        
-        .badge-action {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        .badge-submitted {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        .badge-approved {
-            background-color: #d4edda;
-            color: #155724;
-        }
-    </style>
 </head>
 <body class="d-flex">
-    
-    <!-- Sidebar -->
+
     <div class="sidebar p-4" style="width: 250px; height: 100vh;">
-        <div class="sidebar-brand">Reservelt</div>
+        <div class="sidebar-brand">ReserveIt</div>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a href="#" class="nav-link text-white active">
@@ -163,62 +159,60 @@
         </ul>
     </div>
 
-    <!-- Main content -->
     <div class="flex-grow-1">
-        <!-- Topbar -->
         <div class="topbar d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold">Dashboard Overview</h5>
             <div class="d-flex align-items-center">
-                <span class="fw-medium me-3">Welcome, Agent</span>
+                <span class="fw-medium me-3">Welcome, <?php echo htmlspecialchars($_SESSION['firstname'] ?? 'Agent'); ?></span>
+                
                 <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                     <i class="fas fa-user"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Stats -->
         <div class="p-4">
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+
             <div class="row g-4 mb-4">
                 <div class="col-md-3">
                     <div class="stat-card" style="background: linear-gradient(135deg, var(--success-color), #66bb6a);">
                         <i class="fas fa-users"></i>
-                        <div class="count">15</div>
+                        <div class="count"><?php echo $total_clients; ?></div>
                         <div class="label">Total Assisted Clients</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card" style="background: linear-gradient(135deg, var(--warning-color), #ffa726);">
                         <i class="fas fa-coins"></i>
-                        <div class="count">₱15,250</div>
+                        <div class="count">₱<?php echo number_format($total_commission, 2); ?></div>
                         <div class="label">Total Commission Earned</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card" style="background: linear-gradient(135deg, var(--info-color), #42a5f5);">
                         <i class="fas fa-check-circle"></i>
-                        <div class="count">8</div>
+                        <div class="count"><?php echo $approved_reservations; ?></div>
                         <div class="label">Approved Reservations</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card" style="background: linear-gradient(135deg, var(--primary-color), #4895ef);">
                         <i class="fas fa-clock"></i>
-                        <div class="count">3</div>
+                        <div class="count"><?php echo $pending_reservations; ?></div>
                         <div class="label">Pending Reservations</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
             <div class="content-card mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Recent Activity</h5>
                     <div>
                         <button class="btn btn-sm btn-outline-secondary me-2">
                             <i class="fas fa-filter me-1"></i> Filter
-                        </button>
-                        <button class="btn btn-sm btn-primary">
-                            <i class="fas fa-download me-1"></i> Export
                         </button>
                     </div>
                 </div>
@@ -234,47 +228,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>John Doe</td>
-                                <td>Submitted Reservation</td>
-                                <td>Lot 5</td>
-                                <td>2025-03-15 10:45 AM</td>
-                                <td><span class="badge badge-action badge-submitted">Pending</span></td>
-                            </tr>
-                            <tr>
-                                <td>Jane Smith</td>
-                                <td>Reservation Approved</td>
-                                <td>Lot 10</td>
-                                <td>2025-03-15 09:30 AM</td>
-                                <td><span class="badge badge-action badge-approved">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td>Robert Lee</td>
-                                <td>Reservation Approved</td>
-                                <td>Lot 22</td>
-                                <td>2025-03-13 03:10 PM</td>
-                                <td><span class="badge badge-action badge-approved">Approved</span></td>
-                            </tr>
-                            <tr>
-                                <td>Maria Garcia</td>
-                                <td>Submitted Reservation</td>
-                                <td>Lot 8</td>
-                                <td>2025-03-13 05:20 PM</td>
-                                <td><span class="badge badge-action badge-submitted">Pending</span></td>
-                            </tr>
+                            <?php if (empty($recent_activities)): ?>
+                                <tr>
+                                    <td colspan="5" class="text-center">No recent activities found</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($recent_activities as $activity): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($activity['firstname'] . ' ' . $activity['lastname']); ?></td>
+                                        <td><?php echo htmlspecialchars($activity['action_taken']); ?></td>
+                                        <td><?php echo htmlspecialchars($activity['lot_number']); ?></td>
+                                        <td><?php echo htmlspecialchars($activity['reservation_date']); ?></td>
+                                        <td>
+                                            <span class="badge badge-action <?php echo $activity['status'] === 'Approved' ? 'badge-approved' : 'badge-submitted'; ?>">
+                                                <?php echo htmlspecialchars($activity['status']); ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted">Showing 4 of 15 activities</div>
+                    <div class="text-muted">Showing <?php echo count($recent_activities); ?> of <?php echo count($recent_activities); ?> activities</div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item disabled">
                                 <a class="page-link" href="#" tabindex="-1">Previous</a>
                             </li>
                             <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
                             <li class="page-item">
                                 <a class="page-link" href="#">Next</a>
                             </li>

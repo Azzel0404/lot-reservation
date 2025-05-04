@@ -341,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="left">
             <div class="logo">
                 <i class="fas fa-map-marked-alt"></i>
-                <span>LotReserve</span>
+                <span>ReserveIt</span>
             </div>
             <h2>Welcome Back!</h2>
             <p>Access your account to manage lot reservations, view availability, and more.</p>
