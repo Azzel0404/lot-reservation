@@ -50,46 +50,48 @@ $result = mysqli_stmt_get_result($stmt);
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-        <!-- Welcome message on the left -->
-        <span class="text-white d-none d-md-block">Welcome, <?= $_SESSION['username'] ?? 'Guest' ?></span>
-        
+    <div class="container-fluid px-4">
+        <!-- Profile on the left -->
+        <div class="d-flex align-items-center profile-left">
+            <i class="fas fa-user me-2"></i>
+            <span class="profile-text">User</span>
+        </div>
+
+        <!-- Mobile Toggle -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Navigation links moved to the right -->
-            <ul class="navbar-nav ms-auto me-3">
-                <li class="nav-item">
+            <!-- Navigation links on the right -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item mx-2">
                     <a class="nav-link" href="../index.php">
-                        <i class="fas fa-home me-1"></i> Home
+                        <i class="fas fa-home me-1"></i> <span>Home</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="available_lots.php">
-                        <i class="fas fa-th me-1"></i> Lots
+                <li class="nav-item mx-2">
+                    <a class="nav-link" href="available_lots.php">
+                        <i class="fas fa-th me-1"></i> <span>Lots</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item mx-2">
                     <a class="nav-link" href="../reservations.php">
-                        <i class="fas fa-calendar-check me-1"></i>Reservations
+                        <i class="fas fa-calendar-check me-1"></i> <span>Reservations</span>
                     </a>
                 </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link" href="../profile/profile.php">
+                        <i class="fas fa-user-circle"></i> <span>Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a href="../../logout.php" class="btn btn-sm btn-outline-light logout-btn">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </li>
+                
             </ul>
-            
-            <!-- User dropdown on the far right -->
-            <div class="dropdown">
-                <div class="avatar" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user"></i>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="../profile/profile.php"><i class="fas fa-user-cog me-2"></i>My Profile</a></li>
-                    <li><a class="dropdown-item" href="settings.php"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="../../logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                </ul>
-            </div>
         </div>
     </div>
 </nav>
@@ -97,53 +99,80 @@ $result = mysqli_stmt_get_result($stmt);
 <div class="container my-4 pt-3">
     <h2 class="text-center section-title mb-4">Available Lots</h2>
     
-    <!-- Minimalistic Filter -->
-    <div class="mini-filter">
-        <form method="GET" action="">
-            <div class="row g-3 filter-row">
-                <!-- Location -->
-                <div class="col-md-4 col-sm-6">
-                    <label for="location">Location</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-map-marker-alt text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" id="location" name="location" 
-                               placeholder="Search location" value="<?= htmlspecialchars($location_filter ?? '') ?>">
-                    </div>
-                </div>
-                
-                <!-- Size Range -->
-                <div class="col-md-5 col-sm-6">
-                    <label for="size_min">Size (sqm)</label>
-                    <div class="size-range">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="fas fa-ruler text-muted"></i>
-                            </span>
-                            <input type="number" class="form-control border-start-0" id="size_min" name="size_min" 
-                                   placeholder="Min" value="<?= htmlspecialchars($size_min ?? '') ?>">
-                        </div>
-                        <span class="size-divider">-</span>
-                        <input type="number" class="form-control" id="size_max" name="size_max" 
-                               placeholder="Max" value="<?= htmlspecialchars($size_max ?? '') ?>">
-                    </div>
-                </div>
-                
-                <!-- Buttons -->
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="d-flex gap-2 w-100">
-                        <button type="submit" class="btn btn-mini-filter flex-grow-1">
-                            <i class="fas fa-filter me-2"></i> Filter
-                        </button>
-                        <a href="available_lots.php" class="btn btn-mini-reset flex-grow-1">
-                            <i class="fas fa-times me-2"></i> Reset
-                        </a>
-                    </div>
+<!-- Compact Filter Section with Reset -->
+<div class="filter-container mb-4">
+    <form method="GET" action="" class="bg-light p-3 rounded">
+        <div class="row g-2 align-items-center">
+            <!-- Location Filter -->
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                    <input type="text" class="form-control form-control-sm" name="location" 
+                           placeholder="Location" value="<?= htmlspecialchars($location_filter ?? '') ?>">
                 </div>
             </div>
-        </form>
-    </div>
+            
+            <!-- Size Range Filter -->
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-ruler-combined text-muted"></i></span>
+                    <input type="number" class="form-control form-control-sm" name="size_min" 
+                           placeholder="Min size" min="0" value="<?= htmlspecialchars($size_min ?? '') ?>">
+                    <span class="input-group-text bg-white px-1">-</span>
+                    <input type="number" class="form-control form-control-sm" name="size_max" 
+                           placeholder="Max size" min="0" value="<?= htmlspecialchars($size_max ?? '') ?>">
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="col-md-4">
+                <div class="d-flex gap-1">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max)): ?>
+                        <button type="button" onclick="location.href='available_lots.php'" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Filters Badges - Only show when filters are active -->
+        <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max)): ?>
+        <div class="mt-2">
+            <div class="d-flex flex-wrap gap-1 align-items-center">
+                <small class="text-muted me-1">Active filters:</small>
+                <?php if (!empty($location_filter)): ?>
+                    <span class="badge bg-light text-dark border">
+                        Location: <?= htmlspecialchars($location_filter) ?>
+                        <a href="?<?= http_build_query(array_merge($_GET, ['location' => ''])) ?>" class="text-reset ms-1">
+                            <i class="fas fa-times small"></i>
+                        </a>
+                    </span>
+                <?php endif; ?>
+                <?php if (!empty($size_min)): ?>
+                    <span class="badge bg-light text-dark border">
+                        Min: <?= htmlspecialchars($size_min) ?> sqm
+                        <a href="?<?= http_build_query(array_merge($_GET, ['size_min' => ''])) ?>" class="text-reset ms-1">
+                            <i class="fas fa-times small"></i>
+                        </a>
+                    </span>
+                <?php endif; ?>
+                <?php if (!empty($size_max)): ?>
+                    <span class="badge bg-light text-dark border">
+                        Max: <?= htmlspecialchars($size_max) ?> sqm
+                        <a href="?<?= http_build_query(array_merge($_GET, ['size_max' => ''])) ?>" class="text-reset ms-1">
+                            <i class="fas fa-times small"></i>
+                        </a>
+                    </span>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </form>
+</div>
     
     <!-- Lot Cards -->
     <div class="row g-4 justify-content-center" id="lots-container">
@@ -154,7 +183,7 @@ $result = mysqli_stmt_get_result($stmt);
                          data-lot-id="<?= $lot['lot_id'] ?>"
                          style="cursor: pointer;">
                         <div class="position-relative">
-                            <img src="../admin/lots/uploads/<?= htmlspecialchars($lot['aerial_image']) ?>"
+                            <img src="../../admin/lots/uploads/<?= htmlspecialchars($lot['aerial_image']) ?>"
                                  class="card-img-top" alt="Lot Image">
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge bg-success">Available</span>
@@ -245,6 +274,7 @@ $result = mysqli_stmt_get_result($stmt);
         </div>
     </div>
 </div>
+
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

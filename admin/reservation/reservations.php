@@ -151,7 +151,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Reservations</title>
-    <link rel="stylesheet" href="/lot-reservation/assets/css/admin.css">
+    <link rel="stylesheet" href="reservations.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         .error-message { color: #e74c3c; padding: 10px; margin-bottom: 20px; background: #fde8e8; border-radius: 4px; }

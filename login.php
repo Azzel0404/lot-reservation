@@ -19,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($email) || empty($password)) {
         $errorMessage = 'Please enter both email and password.';
+    } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errorMessage = 'Please enter a valid email address.';
     } else {
         $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
         $stmt->bind_param("s", $email);

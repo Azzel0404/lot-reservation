@@ -151,14 +151,12 @@ $conn->close();
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Commission Details</h5>
                     <div>
-                        <button class="btn btn-sm btn-outline-secondary me-2">
+                        <div class="me-2 d-inline-block">
+                            <input type="text" id="commissionListFilter" class="form-control form-control-sm" placeholder="Filter commissions...">
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary ms-2">
                             <i class="fas fa-filter me-1"></i> Filter
                         </button>
-                        <!--
-                        <button class="btn btn-sm btn-primary">
-                            <i class="fas fa-download me-1"></i> Export
-                        </button>
-                        -->
                     </div>
                 </div>
 
@@ -197,5 +195,27 @@ $conn->close();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterInput = document.getElementById('commissionListFilter');
+        const commissionTableBody = document.querySelector('.table-responsive table tbody');
+        const tableRows = commissionTableBody.querySelectorAll('tr');
+
+        filterInput.addEventListener('input', function () {
+            const filterValue = this.value.trim().toLowerCase();
+
+            tableRows.forEach(row => {
+                const clientName = row.cells[0].textContent.toLowerCase();
+                const lotReserved = row.cells[1].textContent.toLowerCase();
+
+                if (clientName.includes(filterValue) || lotReserved.includes(filterValue)) {
+                    row.style.display = ''; // Show the row
+                } else {
+                    row.style.display = 'none'; // Hide the row
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

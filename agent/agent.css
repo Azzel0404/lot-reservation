@@ -8,6 +8,7 @@
     --warning-color: #ff9800;
     --danger-color: #f44336;
     --info-color: #2196f3;
+    --final-color: #1E3A5F;
 }
 
 body {
@@ -16,7 +17,7 @@ body {
 }
 
 .sidebar {
-    background: linear-gradient(135deg, var(--dark-color), var(--secondary-color));
+    background: linear-gradient(135deg, var(--final-color), var(--final-color));
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
 }
@@ -70,7 +71,7 @@ body {
 }
 
 .badge-approved {
-    background-color: #d4edda;
+    background-color: #dbedda;
     color: #155724;
 }
 

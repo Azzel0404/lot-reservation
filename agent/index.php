@@ -1,3 +1,4 @@
+<!-- agent/index.php -->
 <?php
 session_start();
 require_once '../config/db.php';
@@ -133,6 +134,13 @@ try {
 </head>
 <body class="d-flex">
 
+    <style>
+        .badge-approved {
+        background-color: #dbedda;
+        color: #155724;
+        }
+    </style>
+
     <div class="sidebar p-4" style="width: 250px; height: 100vh;">
         <div class="sidebar-brand">ReserveIt</div>
         <ul class="nav flex-column">
@@ -211,7 +219,15 @@ try {
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Recent Activity</h5>
                     <div>
-                        <button class="btn btn-sm btn-outline-secondary me-2">
+                        <div class="me-2 d-inline-block">
+                            <label for="activityStartDate" class="form-label form-label-sm">Start Date:</label>
+                            <input type="date" id="activityStartDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="me-2 d-inline-block">
+                            <label for="activityEndDate" class="form-label form-label-sm">End Date:</label>
+                            <input type="date" id="activityEndDate" class="form-control form-control-sm">
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-filter me-1"></i> Filter
                         </button>
                     </div>
@@ -252,22 +268,35 @@ try {
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">Showing <?php echo count($recent_activities); ?> of <?php echo count($recent_activities); ?> activities</div>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.getElementById('activityStartDate');
+        const endDateInput = document.getElementById('activityEndDate');
+        const filterButton = document.querySelector('.content-card.mb-4 .d-flex button.btn-outline-secondary');
+        const activityTableBody = document.querySelector('.table-responsive table tbody');
+        const tableRows = activityTableBody.querySelectorAll('tr');
+
+        filterButton.addEventListener('click', function () {
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            tableRows.forEach(row => {
+                const activityDate = row.cells[3].textContent; // Get the 'Date' column
+
+                if ((!startDate || activityDate >= startDate) && (!endDate || activityDate <= endDate)) {
+                    row.style.display = ''; // Show the row
+                } else {
+                    row.style.display = 'none'; // Hide the row
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -29,7 +29,7 @@ $clients_data = [];
 if ($agent_id) {
     $query = "SELECT c.client_id, c.firstname, c.lastname, c.middlename, 
                      u.email, u.phone, u.address,
-                     l.lot_number, r.reservation_date, r.status, 
+                     l.lot_number, l.size_meter_square, r.reservation_date, r.status, 
                      ac.commission_fee
               FROM client c
               JOIN user u ON c.user_id = u.user_id
@@ -62,6 +62,22 @@ if ($agent_id) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="d-flex">
+
+    <style>
+        .badge-approved {
+        background-color: #dbedda;
+        color: #155724;
+        }
+        .modal-body .form-control[readonly] {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            cursor: default;
+        }
+        .modal-body .form-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+    </style>
     
     <!-- Sidebar -->
     <div class="sidebar p-4" style="width: 250px; height: 100vh;">
@@ -108,8 +124,11 @@ if ($agent_id) {
             <div class="content-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Client List</h5>
-                    <div>
-                        <button class="btn btn-sm btn-outline-secondary me-2">
+                    <div class="d-flex align-items-center">
+                        <div class="me-2">
+                            <input type="text" id="clientListFilter" class="form-control form-control-sm" placeholder="Filter clients...">
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-filter me-1"></i> Filter
                         </button>
                     </div>
@@ -159,7 +178,15 @@ if ($agent_id) {
                                             <?php echo $client['commission_fee'] ? '₱' . number_format($client['commission_fee'], 2) : 'N/A'; ?>
                                         </td>          
                                         <td>
-                                            <button class="action-btn btn btn-sm btn-outline-primary me-1">
+                                            <button class="action-btn btn btn-sm btn-outline-primary me-1 view-client-btn"
+                                                data-fullname="<?php echo htmlspecialchars($fullName); ?>"
+                                                data-lot="<?php echo htmlspecialchars($client['lot_number'] ?? 'None'); ?>"
+                                                data-size="<?php echo htmlspecialchars($client['size_meter_square'] ?? 'N/A'); ?>"
+                                                data-phone="<?php echo htmlspecialchars($client['phone']); ?>"
+                                                data-email="<?php echo htmlspecialchars($client['email']); ?>"
+                                                data-status="<?php echo htmlspecialchars($client['status'] ?? 'No Reservation'); ?>"
+                                                data-date="<?php echo $client['reservation_date'] ? date('Y-m-d', strtotime($client['reservation_date'])) : 'N/A'; ?>"
+                                                data-address="<?php echo htmlspecialchars($client['address']); ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </td>
@@ -176,26 +203,108 @@ if ($agent_id) {
                 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">Showing <?php echo count($clients_data); ?> clients</div>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <!--
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                            -->
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- View Client Modal -->
+    <div class="modal fade" id="viewClientModal" tabindex="-1" aria-labelledby="viewClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="viewClientModalLabel">Client Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                <label for="modalFullname" class="form-label fw-bold">Full Name</label>
+                <input type="text" class="form-control" id="modalFullname" readonly>
+                </div>
+                <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="modalLotNumber" class="form-label fw-bold">Lot Number</label>
+                    <input type="text" class="form-control" id="modalLotNumber" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="modalLotSize" class="form-label fw-bold">Size (m²)</label>
+                    <input type="text" class="form-control" id="modalLotSize" readonly>
+                </div>
+                </div>
+                <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="modalPhone" class="form-label fw-bold">Phone Number</label>
+                    <input type="text" class="form-control" id="modalPhone" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="modalEmail" class="form-label fw-bold">Email</label>
+                    <input type="email" class="form-control" id="modalEmail" readonly>
+                </div>
+                </div>
+                <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="modalStatus" class="form-label fw-bold">Reservation Status</label>
+                    <input type="text" class="form-control" id="modalStatus" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="modalDate" class="form-label fw-bold">Reservation Date</label>
+                    <input type="text" class="form-control" id="modalDate" readonly>
+                </div>
+                </div>
+                <div class="mb-3">
+                <label for="modalAddress" class="form-label fw-bold">Address</label>
+                <textarea class="form-control" id="modalAddress" rows="2" readonly></textarea>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+            const viewButtons = document.querySelectorAll('.view-client-btn');
+
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                // Set values to input fields instead of text content
+                document.getElementById('modalFullname').value = this.dataset.fullname;
+                document.getElementById('modalLotNumber').value = this.dataset.lot;
+                document.getElementById('modalLotSize').value = this.dataset.size;
+                document.getElementById('modalPhone').value = this.dataset.phone;
+                document.getElementById('modalEmail').value = this.dataset.email;
+                document.getElementById('modalStatus').value = this.dataset.status;
+                document.getElementById('modalDate').value = this.dataset.date;
+                document.getElementById('modalAddress').value = this.dataset.address;
+
+                const modal = new bootstrap.Modal(document.getElementById('viewClientModal'));
+                modal.show();
+                });
+            });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const filterInput = document.getElementById('clientListFilter');
+                const clientTable = document.querySelector('.table-responsive table tbody');
+                const tableRows = clientTable.querySelectorAll('tr');
+
+                filterInput.addEventListener('input', function () {
+                    const filterValue = this.value.trim().toLowerCase();
+
+                    tableRows.forEach(row => {
+                        const clientName = row.cells[0].textContent.toLowerCase();
+                        const lotReserved = row.cells[1].textContent.toLowerCase();
+                        const status = row.cells[2].textContent.toLowerCase();
+
+                        if (clientName.includes(filterValue) || lotReserved.includes(filterValue) || status.includes(filterValue)) {
+                            row.style.display = ''; // Show the row
+                        } else {
+                            row.style.display = 'none'; // Hide the row
+                        }
+                    });
+                });
+            });
+        </script>
+
 </body>
 </html>

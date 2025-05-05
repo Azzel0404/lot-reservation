@@ -121,6 +121,7 @@ session_start();
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            text-decoration: none;
         }
 
         .login-button a i {
