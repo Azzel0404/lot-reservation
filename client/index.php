@@ -151,7 +151,7 @@ try {
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../client/lots/available_lots.php">
+                    <a class="nav-link" href="../client/available_lots.php">
                         <i class="fas fa-th me-1"></i> <span>Lots</span>
                     </a>
                 </li>
@@ -280,7 +280,7 @@ document.querySelectorAll('.lot-clickable').forEach(card => {
 
                 document.getElementById('reserveRequestBtn').addEventListener('click', () => {
                     // Set the PDF source and download link
-                    const pdfUrl = '../Lot_Reservation_Request_Agreement.pdf';
+                    const pdfUrl = 'Lot_Reservation_Request_Agreement.pdf';
                     document.getElementById('pdfPreview').src = pdfUrl;
                     document.getElementById('downloadPdf').href = pdfUrl;
 

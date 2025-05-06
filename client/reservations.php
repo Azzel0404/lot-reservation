@@ -27,7 +27,7 @@ if ($stmt) {
 
         // Fetch only the reservations for the logged-in client
         $reservation_query = "SELECT r.reservation_id, c.firstname, c.lastname, l.lot_number, r.reservation_fee, p.payment_method, 
-                                r.status, r.reservation_date, l.size_meter_square, r.date_approved, r.expiry_date
+                                r.status, r.reservation_date, l.size_meter_square, r.date_approved
                                 FROM reservation r
                                 JOIN client c ON r.client_id = c.client_id
                                 JOIN lot l ON r.lot_id = l.lot_id
@@ -192,7 +192,7 @@ if ($stmt) {
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../client/lots/available_lots.php">
+                    <a class="nav-link" href="../client/available_lots.php">
                         <i class="fas fa-th me-1"></i> <span>Lots</span>
                     </a>
                 </li>

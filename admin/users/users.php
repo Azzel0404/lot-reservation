@@ -71,25 +71,61 @@ if ($agents_result === false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <link rel="stylesheet" href="../users/users.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="dashboard-container">
-    <?php include('../sidebar.php'); ?>
-    
-    <main class="main-content">
-        <header class="top-bar">
-            <span>Admin</span>
-            <i class="fas fa-user-cog"></i>
-        </header>
+<!-- Sidebar -->
+<div class="sidebar p-4" style="width: 250px; height: 100vh;">
+        <div class="sidebar-brand mb-4">ReserveIt</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="../dashboard/index.php" class="nav-link text-white">
+                    <i class="fas fa-dashboard me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../reservation/reservations.php" class="nav-link text-white">
+                    <i class="fas fa-calendar-check me-2"></i> Reservations
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../lots/lots.php" class="nav-link text-white">
+                    <i class="fas fa-th me-2"></i> Lots
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../users/users.php" class="nav-link text-white">
+                    <i class="fas fa-users me-2"></i> Users
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <a href="../../logout.php" class="nav-link text-white">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
 
+    <div class="topbar d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Settings</h5>
+            <div class="d-flex align-items-center">
+                <span class="fw-medium me-3">Admin</span>
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+    <main class="main-content">
         <div class="content-wrapper">
             <section class="user-management">
                 <!-- Error message container -->
                 <?php if ($conn->error): ?>
-                    <div class="alert-query-error">
+                    <div class="alert alert-danger">
                         Database error occurred. Please check your queries.
                     </div>
                 <?php endif; ?>
@@ -97,79 +133,83 @@ if ($agents_result === false) {
                 <!-- CLIENTS TABLE -->
                 <div class="table-section">
                     <h3 class="section-heading">Clients</h3>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php if (!empty($clients_data)): ?>
-                            <?php foreach ($clients_data as $client_id => $client): 
-                                $fullName = $client['firstname'] . ' ' . ($client['middlename'] ? $client['middlename'] . ' ' : '') . $client['lastname'];
-                            ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td><?= htmlspecialchars($fullName) ?></td>
-                                    <td><?= htmlspecialchars($client['email']) ?></td>
-                                    <td><?= htmlspecialchars($client['contact_number']) ?></td>
-                                    <td>
-                                        <button type="button" class="btn-view" data-bs-toggle="modal" data-bs-target="#clientModal" 
-                                            data-client-id="<?= $client_id ?>">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                    </td>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="4" class="text-center">No clients found</td>
-                            </tr>
-                        <?php endif; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            <?php if (!empty($clients_data)): ?>
+                                <?php foreach ($clients_data as $client_id => $client): 
+                                    $fullName = $client['firstname'] . ' ' . ($client['middlename'] ? $client['middlename'] . ' ' : '') . $client['lastname'];
+                                ?>
+                                    <tr>
+                                        <td data-label="Name"><?= htmlspecialchars($fullName) ?></td>
+                                        <td data-label="Email"><?= htmlspecialchars($client['email']) ?></td>
+                                        <td data-label="Phone"><?= htmlspecialchars($client['contact_number']) ?></td>
+                                        <td data-label="Actions">
+                                            <button type="button" class="btn-view" data-bs-toggle="modal" data-bs-target="#clientModal" 
+                                                data-client-id="<?= $client_id ?>">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No clients found</td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- AGENTS TABLE -->
                 <div class="table-section">
                     <h3 class="section-heading">Agents</h3>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>License #</th>
-                                <th>Phone</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php if (!empty($agents_data)): ?>
-                            <?php foreach ($agents_data as $agent_id => $agent): 
-                                $fullName = $agent['firstname'] . ' ' . ($agent['middlename'] ? $agent['middlename'] . ' ' : '') . $agent['lastname'];
-                            ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td><?= htmlspecialchars($fullName) ?></td>
-                                    <td><?= htmlspecialchars($agent['email']) ?></td>
-                                    <td><?= htmlspecialchars($agent['license_number']) ?></td>
-                                    <td><?= htmlspecialchars($agent['contact_number']) ?></td>
-                                    <td>
-                                        <button type="button" class="btn-view" data-bs-toggle="modal" data-bs-target="#agentModal" 
-                                            data-agent-id="<?= $agent_id ?>">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                    </td>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>License #</th>
+                                    <th>Phone</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center">No agents found</td>
-                            </tr>
-                        <?php endif; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            <?php if (!empty($agents_data)): ?>
+                                <?php foreach ($agents_data as $agent_id => $agent): 
+                                    $fullName = $agent['firstname'] . ' ' . ($agent['middlename'] ? $agent['middlename'] . ' ' : '') . $agent['lastname'];
+                                ?>
+                                    <tr>
+                                        <td data-label="Full Name"><?= htmlspecialchars($fullName) ?></td>
+                                        <td data-label="Email"><?= htmlspecialchars($agent['email']) ?></td>
+                                        <td data-label="License #"><?= htmlspecialchars($agent['license_number']) ?></td>
+                                        <td data-label="Phone"><?= htmlspecialchars($agent['contact_number']) ?></td>
+                                        <td data-label="Actions">
+                                            <button type="button" class="btn-view" data-bs-toggle="modal" data-bs-target="#agentModal" 
+                                                data-agent-id="<?= $agent_id ?>">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">No agents found</td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </div>

@@ -409,6 +409,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelector('button[name="back_to_profile"]').addEventListener('click', function(e) {
+    // Remove required attributes before form submission
+    document.querySelectorAll('input[required]').forEach(input => {
+        input.removeAttribute('required');
+    });
+});
+</script>
 </body>
 </html>
 

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../../config/db.php');
+include('../config/db.php');
 
 // Initialize filter variables
 $location_filter = $_GET['location'] ?? '';
@@ -41,7 +41,7 @@ $result = mysqli_stmt_get_result($stmt);
     <meta charset="UTF-8">
     <title>ReserveIt - Available Lots</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../lots/available_lots.css">
+    <link rel="stylesheet" href="../client/available_lots.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@ $result = mysqli_stmt_get_result($stmt);
             <!-- Navigation links on the right -->
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../index.php">
+                    <a class="nav-link" href="../client/index.php">
                         <i class="fas fa-home me-1"></i> <span>Home</span>
                     </a>
                 </li>
@@ -76,17 +76,17 @@ $result = mysqli_stmt_get_result($stmt);
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../reservations.php">
+                    <a class="nav-link" href="../client/reservations.php">
                         <i class="fas fa-calendar-check me-1"></i> <span>Reservations</span>
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../profile/profile.php">
+                    <a class="nav-link" href="../client/profile/profile.php">
                         <i class="fas fa-user-circle"></i> <span>Profile</span>
                     </a>
                 </li>
                 <li class="nav-item ms-2">
-                    <a href="../../logout.php" class="btn btn-sm btn-outline-light logout-btn">
+                    <a href="../logout.php" class="btn btn-sm btn-outline-light logout-btn">
                         <i class="fas fa-sign-out-alt me-1"></i> Logout
                     </a>
                 </li>
@@ -183,7 +183,7 @@ $result = mysqli_stmt_get_result($stmt);
                          data-lot-id="<?= $lot['lot_id'] ?>"
                          style="cursor: pointer;">
                         <div class="position-relative">
-                            <img src="../../admin/lots/uploads/<?= htmlspecialchars($lot['aerial_image']) ?>"
+                            <img src="../admin/lots/uploads/<?= htmlspecialchars($lot['aerial_image']) ?>"
                                  class="card-img-top" alt="Lot Image">
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge bg-success">Available</span>
@@ -282,7 +282,7 @@ $result = mysqli_stmt_get_result($stmt);
 document.querySelectorAll('.lot-clickable').forEach(card => {
     card.addEventListener('click', () => {
         const lotId = card.getAttribute('data-lot-id');
-        fetch(`../fetch_lot_details.php?lot_id=${lotId}`)
+        fetch(`fetch_lot_details.php?lot_id=${lotId}`)
             .then(res => res.text())
             .then(data => {
                 document.getElementById('lotDetailsContent').innerHTML = data;
@@ -291,7 +291,7 @@ document.querySelectorAll('.lot-clickable').forEach(card => {
 
                 document.getElementById('reserveRequestBtn').addEventListener('click', () => {
                     // Set the PDF source and download link
-                    const pdfUrl = '../Lot_Reservation_Request_Agreement.pdf';
+                    const pdfUrl = 'Lot_Reservation_Request_Agreement.pdf';
                     document.getElementById('pdfPreview').src = pdfUrl;
                     document.getElementById('downloadPdf').href = pdfUrl;
 

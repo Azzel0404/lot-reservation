@@ -76,28 +76,153 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-
-<!-- HTML Form -->
-<form action="" method="POST" enctype="multipart/form-data">
-    <h2>Add New Lot</h2>
-    <input type="text" name="lot_number" placeholder="Lot Number" required>
-    <input type="text" name="location" placeholder="Location" required>
-    <input type="number" step="0.01" name="size_meter_square" placeholder="Size in m²" required>
-    <input type="number" step="0.01" name="price" placeholder="Price" required>
+<style>
+    /* Form Container */
     
-    <select name="status" required>
-        <option value="Available">Available</option>
-        <option value="Reserved">Reserved</option>
-    </select>
+    /* Form Header */
+    .form-header {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid green;
+    }
+    
+    /* Form Grid Layout */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    /* Form Group Styling */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+    
+    /* Label Styling */
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #34495e;
+        font-size: 0.9rem;
+    }
+    
+    /* Input Styling */
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+    
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+    
+    /* File Input Styling */
+    input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px dashed #ddd;
+        border-radius: 6px;
+        background: #f8f9fa;
+    }
+    
+    /* Button Styling */
+    .submit-btn {
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .submit-btn:hover {
+        background-color: #27ae60;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+</style>
 
-    <label>Aerial Image</label>
-    <input type="file" name="aerial_image" accept="image/*" required>
-
-    <label>Numbered Image</label>
-    <input type="file" name="numbered_image" accept="image/*" required>
-
-    <label>PDF File (optional)</label>
-    <input type="file" name="pdf_file" accept="application/pdf">
-
-    <button type="submit" name="submit">Create Lot</button>
-</form>
+<div class="create-lot-form">
+    <h2 class="form-header">Add New Lot</h2>
+    
+    <form action="" method="POST" enctype="multipart/form-data" class="form-grid">
+        <div class="form-group">
+            <label for="lot_number">Lot Number</label>
+            <input type="text" id="lot_number" name="lot_number" placeholder="Enter lot number" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Enter location" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="size_meter_square">Size (m²)</label>
+            <input type="number" id="size_meter_square" name="size_meter_square" step="0.01" placeholder="Enter size" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="price">Price (₱)</label>
+            <input type="number" id="price" name="price" step="0.01" placeholder="Enter price" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="Available">Available</option>
+                <option value="Reserved">Reserved</option>
+            </select>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="aerial_image">Aerial Image</label>
+            <input type="file" id="aerial_image" name="aerial_image" accept="image/*" required>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="numbered_image">Numbered Image</label>
+            <input type="file" id="numbered_image" name="numbered_image" accept="image/*" required>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="pdf_file">PDF File (optional)</label>
+            <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf">
+        </div>
+        
+        <div class="form-group full-width">
+            <button type="submit" name="submit" class="submit-btn">Create Lot</button>
+        </div>
+    </form>
+</div>

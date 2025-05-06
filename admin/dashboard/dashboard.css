@@ -1,153 +1,270 @@
 /* admin/dashboard/dashboard.css */
+
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #4f46e5;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --dark-color: #1e293b;
+    --light-color: #f8fafc;
+    --gray-color: #94a3b8;
+    --sidebar-width: 250px;
+    --topbar-height: 20px;
+    --card-border-radius: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
 /* =========================================
    Sidebar Styles
 ========================================= */
+/* Sidebar Styles */
 .sidebar {
-    position: fixed;        /* Fixes sidebar on the left */
-    top: 0;
-    left: 0;
-    width: 220px;           /* Sidebar width */
-    height: 100%;           /* Full height of the screen */
-    background-color: #2c3e50;
-    color: #fff;
-    padding: 20px;
-    font-size: 24px;        /* Larger font size for sidebar text */
-    overflow-y: auto;       /* Allows scrolling if sidebar content overflows */
-}
-
-.sidebar a {
-    color: white;           /* Sidebar link color */
-    text-decoration: none;
-    font-size: 22px;        /* Increased font size for links */
-    display: block;
-    padding: 12px 0;        /* Adjusted padding */
-}
-
-.sidebar a:hover {
-    background-color: #34495e;
-    padding-left: 12px;     /* Adds a left padding when hovering */
-}
-
-/* Optional: Icon size in sidebar */
-.sidebar i {
-    font-size: 28px;        /* Larger icon size */
-    margin-right: 12px;     /* Space between icon and text */
-}
-
-/* =========================================
-   Top Bar Styles (Fixed)
-========================================= */
-.top-bar {
-    position: fixed;        /* Fixes the top bar at the top of the page */
-    top: 0;
-    left: 200px;            /* Starts after the sidebar */
-    width: calc(100% - 220px); /* Ensures top bar spans the entire width minus sidebar */
     background-color: #2c3e50;
     color: white;
-    padding: 15px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Topbar Styles */
+.topbar {
+    height: 70px;
+    padding: 0 30px;
+    background-color: white;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 50%;
     display: flex;
-    justify-content: flex-end;  /* Aligns items to the right */
     align-items: center;
-    z-index: 1000;           /* Ensures top bar is above other elements */
-}
-
-.top-bar span {
-    font-size: 24px;
-    margin-left: 10px;       /* Adds some spacing to the left of the "Admin" text */
-}
-
-.top-bar i {
-    font-size: 24px;
-    margin-right: 10px;      /* Adds some spacing to the right of the icon */
+    justify-content: center;
 }
 /* =========================================
    Layout and Dashboard Styles
 ========================================= */
 .layout-wrapper {
-    display: flex;
+    margin-left: var(--sidebar-width);
+    padding-top: var(--topbar-height);
     min-height: 100vh;
-    padding-left: 220px;     /* Adds space for the fixed sidebar */
-    margin-top: 60px;        /* Adds space to prevent content from overlapping top bar */
 }
 
 .content-area {
-    flex: 1;                /* Allow content to take the remaining space */
-    padding: 10px;
-    margin-left: 50px;          /* Add padding to the content area */
+    padding: 2rem;
 }
 
 .content-wrapper {
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1.5rem;
 }
 
+/* Metrics Cards */
 .dashboard-metrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .card {
     background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    border-radius: var(--card-border-radius);
+    border: none;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
 }
 
-.card h3 {
-    font-size: 30px;
-    margin-bottom: 10px;
-}
-
-.card p {
-    font-size: 16px;
-    color: #555;
-}
-
-.card.donut {
-    height: 250px;
+.dashboard-metrics .card {
+    padding: 1.5rem;
+    position: relative;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    border-top: 4px solid transparent;
+}
+
+.dashboard-metrics .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.dashboard-metrics .card.blue {
+    border-top-color: var(--primary-color);
+}
+
+.dashboard-metrics .card.green {
+    border-top-color: var(--success-color);
+}
+
+.dashboard-metrics .card.purple {
+    border-top-color: var(--secondary-color);
+}
+
+.dashboard-metrics .card.red {
+    border-top-color: var(--danger-color);
+}
+
+.dashboard-metrics .card h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.dashboard-metrics .card p {
+    color: var(--gray-color);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.dashboard-metrics .card .icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    opacity: 0.2;
+}
+
+/* Chart Section */
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background-color: white;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+}
+
+
+.chart-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Activity Log */
+.activity-log {
+    background-color: white;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+}
+
+.activity-log-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 1.5rem;
 }
 
-/* =========================================
-   Activity Log Table (same size as donut chart)
-========================================= */
-.activity-log .activity-table {
-    height: 250px; /* Same height as donut card */
-    overflow-y: auto; /* Allows scrolling if the table has many rows */
-}
-
-.activity-log table {
-    width: 100%;
-    height: 100%; /* Ensures the table fills the card */
-    border-collapse: collapse;
-}
-
-.activity-log th, .activity-log td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-.activity-log th {
-    background-color: #f4f4f4;
-}
-
-.activity-log tr:nth-child(even) {
-    background-color: #f9f9f9;
+.activity-log-header h3 {
+    margin: 0;
+    color: var(--dark-color);
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .filter-btn {
-    margin-bottom: 20px;
-    padding: 8px 12px;
-    background-color: #2c3e50;
-    color: white;
-    border: none;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
-    background-color: #34495e;
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.activity-table th, .activity-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.activity-table th {
+    font-weight: 600;
+    color: var(--gray-color);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.activity-table tr:last-child td {
+    border-bottom: none;
+}
+
+.activity-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.activity-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .topbar, .layout-wrapper {
+        left: 0;
+        margin-left: 0;
+    }
+    
+    .menu-toggle.active + .sidebar {
+        transform: translateX(0);
+    }
 }

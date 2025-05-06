@@ -2,188 +2,177 @@
    Sidebar Styles (Consistent with dashboard.css)
 ========================================= */
 .sidebar {
-    position: fixed;        /* Fixes sidebar on the left */
-    top: 0;
-    left: 0;
-    width: 220px;           /* Sidebar width */
-    height: 100%;           /* Full height of the screen */
-    background-color: #2c3e50;
-    color: #fff;
-    padding: 20px;
-    font-size: 24px;        /* Larger font size for sidebar text */
-    overflow-y: auto;       /* Allows scrolling if sidebar content overflows */
-}
-
-.sidebar a {
-    color: white;           /* Sidebar link color */
-    text-decoration: none;
-    font-size: 22px;        /* Increased font size for links */
-    display: block;
-    padding: 12px 0;        /* Adjusted padding */
-}
-
-.sidebar a:hover {
-    background-color: #34495e;
-    padding-left: 12px;     /* Adds a left padding when hovering */
-}
-
-/* Optional: Icon size in sidebar */
-.sidebar i {
-    font-size: 28px;        /* Larger icon size */
-    margin-right: 12px;     /* Space between icon and text */
-}
-
-/* =========================================
-   Top Bar Styles (Fixed)
-========================================= */
-.top-bar {
-    position: fixed;        /* Fixes the top bar at the top of the page */
-    top: 0;
-    left: 200px;            /* Starts after the sidebar */
-    width: calc(100% - 220px); /* Ensures top bar spans the entire width minus sidebar */
     background-color: #2c3e50;
     color: white;
-    padding: 15px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Topbar Styles */
+.topbar {
+    height: 70px;
+    padding: 0 30px;
+    background-color: white;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 50%;
     display: flex;
-    justify-content: flex-end;  /* Aligns items to the right */
     align-items: center;
-    z-index: 1000;           /* Ensures top bar is above other elements */
+    justify-content: center;
+}
+.main-content {
+    padding: 2rem;
+    margin-left: 250px;
+    margin-top: 10px;
 }
 
-.top-bar span {
-    font-size: 24px;
-    margin-left: 10px;       /* Adds some spacing to the left of the "Admin" text */
-}
-
-.top-bar i {
-    font-size: 24px;
-    margin-right: 10px;      /* Adds some spacing to the right of the icon */
-}
-
-/* =========================================
-   Content Wrapper (For consistency in layout)
-========================================= */
-.content-wrapper {
-    margin-top: 70px;        /* Space below the top bar */
-    margin-left: 220px;      /* Space for the sidebar */
-    padding: 20px;
-    background-color: #fff;
-}
-
-/* =========================================
-   User Management Section
-========================================= */
-.user-management {
-    padding: 20px;
-}
-
-/* Table Section */
+/* Table Section Styling */
 .table-section {
-    margin-bottom: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-/* Section Heading */
 .section-heading {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-/* Table Styles */
+/* Table Styling */
 .table {
     width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.table th, .table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    position: sticky;
+    top: 0;
 }
 
-.table th {
-    background-color: #2c3e50;
-    color: white;
-    font-size: 18px;
+.table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
 }
 
-.table td {
-    font-size: 16px;
+.table tbody tr:hover {
+    background-color: #f8f9fa;
 }
 
-.table tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* =========================================
-   Layout for Responsive Design
-========================================= */
-@media (max-width: 768px) {
-    .table {
-        font-size: 14px;
-    }
-
-    .table th, .table td {
-        padding: 8px;
-    }
-
-    .sidebar {
-        width: 180px;
-    }
-
-    .top-bar {
-        left: 180px;
-        width: calc(100% - 180px);
-    }
-
-    .content-wrapper {
-        margin-left: 200px;
-    }
-}
-
-/* =========================================
-   User Details Modal Styles
-========================================= */
+/* Button Styling */
 .btn-view {
-    background-color: #4e73df;
+    background-color: #3b82f6;
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .btn-view:hover {
-    background-color: #2e59d9;
+    background-color: #2563eb;
+    transform: translateY(-1px);
 }
 
-.btn-view i {
-    margin-right: 5px;
+/* Modal Styling */
+.modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
 }
 
 .user-details dt {
-    font-weight: 600;
-    color: #495057;
+    font-weight: 500;
+    color: #4b5563;
 }
 
 .user-details dd {
+    color: #1f2937;
     margin-bottom: 1rem;
-    color: #212529;
 }
 
-.modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.alert-query-error {
-    margin: 20px;
-    padding: 15px;
-    border: 1px solid #f5c6cb;
-    background-color: #f8d7da;
-    color: #721c24;
-    border-radius: 4px;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+    }
+    
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: #4b5563;
+        margin-right: 1rem;
+    }
 }
