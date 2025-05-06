@@ -6,7 +6,7 @@ if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
     switch ($_SESSION['role']) {
         case 'ADMIN': header("Location: admin/dashboard/index.php"); exit();
         case 'AGENT': header("Location: agent/index.php"); exit();
-        case 'CLIENT': header("Location: client/index.php"); exit();
+        case 'CLIENT': header("Location: client/available_lots.php"); exit();
         default: header("Location: index.php"); exit();
     }
 }

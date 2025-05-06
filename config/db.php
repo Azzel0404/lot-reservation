@@ -4,7 +4,7 @@ $host = 'localhost';
 $db = 'lot-reservation-system';
 $user = 'root';
 $pass = "";
-$port = 3306;
+$port = 3307;
 
 // Establish the connection
 $conn = new mysqli($host, $user, $pass, $db, $port);

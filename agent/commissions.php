@@ -63,7 +63,6 @@ try {
     $error_message = "Database error: " . $e->getMessage();
     $commissions = [];
     $total_commission = 0;
-    $pending_commission = 0;
 }
 
 $conn->close();
@@ -137,10 +136,7 @@ $conn->close();
                 <div class="col-md-6">
                     <div class="summary-card pending-commission">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Pending Commission</h6>
-                                <h3 class="mb-0">₱<?php echo number_format($pending_commission, 2); ?></h3>
-                            </div>
+                            
                             <i class="fas fa-clock fa-2x opacity-50"></i>
                         </div>
                     </div>

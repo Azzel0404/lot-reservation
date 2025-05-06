@@ -6,6 +6,8 @@ include('../../config/db.php');
 $location_filter = $_GET['location'] ?? '';
 $size_min = $_GET['size_min'] ?? '';
 $size_max = $_GET['size_max'] ?? '';
+$price_min = $_GET['price_min'] ?? '';
+$price_max = $_GET['price_max'] ?? '';
 
 // Build the base query
 $query = "SELECT * FROM lot WHERE status = 'Available'";
@@ -24,6 +26,14 @@ if (!empty($size_max)) {
     $query .= " AND size_meter_square <= ?";    
     $params[] = $size_max;
 }
+if (!empty($price_min)) {
+    $query .= " AND price >= ?";
+    $params[] = $price_min;
+}
+if (!empty($price_max)) {
+    $query .= " AND price <= ?";    
+    $params[] = $price_max;
+}
 
 // Prepare and execute the query
 $stmt = mysqli_prepare($conn, $query);
@@ -41,10 +51,229 @@ $result = mysqli_stmt_get_result($stmt);
     <meta charset="UTF-8">
     <title>ReserveIt - Available Lots</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../lots/available_lots.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding-top: 70px;
+        }
+
+        .navbar {
+            background-color: var(--secondary-color);
+            box-shadow: var(--box-shadow);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .profile-left {
+            color: white;
+        }
+
+        .logout-btn {
+            transition: var(--transition);
+        }
+
+        .section-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 3px;
+            background-color: var(--primary-color);
+            bottom: -8px;
+            left: 25%;
+        }
+
+        .filter-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .lot-card {
+            transition: var(--transition);
+        }
+
+        .lot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .lot-clickable:hover .card-img-top {
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-text {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-tag {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .lot-features {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .feature {
+            text-align: center;
+            flex: 1;
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .feature-value {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+        }
+
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-footer {
+            border-top: none;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+            border-color: #e67e22;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .card-img-top {
+                height: 150px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Custom scrollbar for modal */
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+    </style>
 </head>
 <body>
 
@@ -71,7 +300,7 @@ $result = mysqli_stmt_get_result($stmt);
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="available_lots.php">
+                    <a class="nav-link active" href="available_lots.php">
                         <i class="fas fa-th me-1"></i> <span>Lots</span>
                     </a>
                 </li>
@@ -90,7 +319,6 @@ $result = mysqli_stmt_get_result($stmt);
                         <i class="fas fa-sign-out-alt me-1"></i> Logout
                     </a>
                 </li>
-                
             </ul>
         </div>
     </div>
@@ -99,80 +327,108 @@ $result = mysqli_stmt_get_result($stmt);
 <div class="container my-4 pt-3">
     <h2 class="text-center section-title mb-4">Available Lots</h2>
     
-<!-- Compact Filter Section with Reset -->
-<div class="filter-container mb-4">
-    <form method="GET" action="" class="bg-light p-3 rounded">
-        <div class="row g-2 align-items-center">
-            <!-- Location Filter -->
-            <div class="col-md-4">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                    <input type="text" class="form-control form-control-sm" name="location" 
-                           placeholder="Location" value="<?= htmlspecialchars($location_filter ?? '') ?>">
+    <!-- Compact Filter Section with Reset -->
+    <div class="filter-container mb-4">
+        <form method="GET" action="" class="bg-light p-3 rounded">
+            <div class="row g-2 align-items-center">
+                <!-- Location Filter -->
+                <div class="col-md-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                        <input type="text" class="form-control form-control-sm" name="location" 
+                               placeholder="Location" value="<?= htmlspecialchars($location_filter ?? '') ?>">
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Size Range Filter -->
-            <div class="col-md-4">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white"><i class="fas fa-ruler-combined text-muted"></i></span>
-                    <input type="number" class="form-control form-control-sm" name="size_min" 
-                           placeholder="Min size" min="0" value="<?= htmlspecialchars($size_min ?? '') ?>">
-                    <span class="input-group-text bg-white px-1">-</span>
-                    <input type="number" class="form-control form-control-sm" name="size_max" 
-                           placeholder="Max size" min="0" value="<?= htmlspecialchars($size_max ?? '') ?>">
+                
+                <!-- Size Range Filter -->
+                <div class="col-md-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="fas fa-ruler-combined text-muted"></i></span>
+                        <input type="number" class="form-control form-control-sm" name="size_min" 
+                               placeholder="Min size" min="0" value="<?= htmlspecialchars($size_min ?? '') ?>">
+                        <span class="input-group-text bg-white px-1">-</span>
+                        <input type="number" class="form-control form-control-sm" name="size_max" 
+                               placeholder="Max size" min="0" value="<?= htmlspecialchars($size_max ?? '') ?>">
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="col-md-4">
-                <div class="d-flex gap-1">
-                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
-                        <i class="fas fa-filter me-1"></i> Filter
-                    </button>
-                    <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max)): ?>
-                        <button type="button" onclick="location.href='available_lots.php'" class="btn btn-outline-danger btn-sm">
-                            <i class="fas fa-undo me-1"></i> Reset
+                
+                <!-- Price Range Filter -->
+                <div class="col-md-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="fas fa-tag text-muted"></i></span>
+                        <input type="number" class="form-control form-control-sm" name="price_min" 
+                               placeholder="Min price" min="0" value="<?= htmlspecialchars($price_min ?? '') ?>">
+                        <span class="input-group-text bg-white px-1">-</span>
+                        <input type="number" class="form-control form-control-sm" name="price_max" 
+                               placeholder="Max price" min="0" value="<?= htmlspecialchars($price_max ?? '') ?>">
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="col-md-3">
+                    <div class="d-flex gap-1">
+                        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                            <i class="fas fa-filter me-1"></i> Filter
                         </button>
+                        <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max) || !empty($price_min) || !empty($price_max)): ?>
+                            <button type="button" onclick="location.href='available_lots.php'" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-undo me-1"></i> Reset
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Filters Badges - Only show when filters are active -->
+            <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max) || !empty($price_min) || !empty($price_max)): ?>
+            <div class="mt-2">
+                <div class="d-flex flex-wrap gap-1 align-items-center">
+                    <small class="text-muted me-1">Active filters:</small>
+                    <?php if (!empty($location_filter)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Location: <?= htmlspecialchars($location_filter) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['location' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($size_min)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Min: <?= htmlspecialchars($size_min) ?> sqm
+                            <a href="?<?= http_build_query(array_merge($_GET, ['size_min' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($size_max)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Max: <?= htmlspecialchars($size_max) ?> sqm
+                            <a href="?<?= http_build_query(array_merge($_GET, ['size_max' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($price_min)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Min: ₱<?= number_format(htmlspecialchars($price_min)) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['price_min' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($price_max)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Max: ₱<?= number_format(htmlspecialchars($price_max)) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['price_max' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-        
-        <!-- Active Filters Badges - Only show when filters are active -->
-        <?php if (!empty($location_filter) || !empty($size_min) || !empty($size_max)): ?>
-        <div class="mt-2">
-            <div class="d-flex flex-wrap gap-1 align-items-center">
-                <small class="text-muted me-1">Active filters:</small>
-                <?php if (!empty($location_filter)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Location: <?= htmlspecialchars($location_filter) ?>
-                        <a href="?<?= http_build_query(array_merge($_GET, ['location' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($size_min)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Min: <?= htmlspecialchars($size_min) ?> sqm
-                        <a href="?<?= http_build_query(array_merge($_GET, ['size_min' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($size_max)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Max: <?= htmlspecialchars($size_max) ?> sqm
-                        <a href="?<?= http_build_query(array_merge($_GET, ['size_max' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endif; ?>
-    </form>
-</div>
+            <?php endif; ?>
+        </form>
+    </div>
     
     <!-- Lot Cards -->
     <div class="row g-4 justify-content-center" id="lots-container">
@@ -192,16 +448,34 @@ $result = mysqli_stmt_get_result($stmt);
                         <div class="card-body">
                             <h5 class="card-title">Lot <?= htmlspecialchars($lot['lot_number']) ?></h5>
                             <p class="card-text mb-2">
-                                <i class="fas fa-ruler-combined text-muted me-2"></i>
-                                <strong>Size:</strong> <?= number_format($lot['size_meter_square']) ?> sqm
-                            </p>
-                            <p class="card-text mb-0">
                                 <i class="fas fa-map-pin text-muted me-2"></i>
-                                <strong>Location:</strong> <?= htmlspecialchars($lot['location']) ?>
+                                <?= htmlspecialchars($lot['location']) ?>
                             </p>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 text-end">
-                            <small class="text-muted">Click to view details</small>
+                            
+                            <div class="price-tag mb-3">
+                                ₱<?= number_format($lot['price'], 2) ?>
+                            </div>
+                            
+                            <div class="lot-features">
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-ruler-combined"></i>
+                                    </div>
+                                    <div class="feature-value">
+                                        <?= number_format($lot['size_meter_square']) ?> sqm
+                                    </div>
+                                    <div class="feature-label">Size</div>
+                                </div>
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-id-card"></i>
+                                    </div>
+                                    <div class="feature-value">
+                                        <?= htmlspecialchars($lot['lot_number']) ?>
+                                    </div>
+                                    <div class="feature-label">Lot No.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -274,7 +548,6 @@ $result = mysqli_stmt_get_result($stmt);
         </div>
     </div>
 </div>
-
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
