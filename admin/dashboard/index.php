@@ -1,3 +1,4 @@
+<!--lot-reservation/admin/dashboard/index.php-->
 <?php
 session_start();
 include('../../config/db.php');
