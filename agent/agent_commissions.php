@@ -29,7 +29,6 @@ try {
                      COUNT(ac.reservation_id) AS total_sales,
                      SUM(ac.commission_fee) AS total_commission,
                      SUM(CASE WHEN ac.status = 'Approved' THEN ac.commission_fee ELSE 0 END) AS approved_commission,
-                     SUM(CASE WHEN ac.status = 'Pending' THEN ac.commission_fee ELSE 0 END) AS pending_commission,
                      SUM(CASE WHEN ac.status = 'Paid' THEN ac.commission_fee ELSE 0 END) AS paid_commission
                      FROM agent_commission ac
                      WHERE ac.agent_id = $agent_id";
@@ -104,7 +103,6 @@ try {
             background-color: #f8f9fa;
             font-weight: 600;
         }
-        .status-pending { color: #f39c12; }
         .status-approved { color: #27ae60; }
         .status-paid { color: #3498db; }
         .top-bar {
@@ -151,10 +149,6 @@ try {
                     <div class="summary-card">
                         <h3>Approved</h3>
                         <p>₱<?= number_format($summary_data['approved_commission'] ?? 0, 2) ?></p>
-                    </div>
-                    <div class="summary-card">
-                        <h3>Pending</h3>
-                        <p>₱<?= number_format($summary_data['pending_commission'] ?? 0, 2) ?></p>
                     </div>
                     <div class="summary-card">
                         <h3>Paid</h3>

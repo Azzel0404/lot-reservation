@@ -82,13 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['lastname'] = 'Last name can only contain letters. No numbers or special characters allowed.';
     }
     
-    // Validate middlename (if provided)
-    if (!empty($middlename)) {
-        if (strlen($middlename) > 50) {
-            $errors['middlename'] = 'Middle name must be less than 50 characters.';
-        } elseif (!preg_match($namePattern, $middlename)) {
-            $errors['middlename'] = 'Middle name can only contain letters. No numbers or special characters allowed.';
-        }
+    // Validate middlename (now required)
+    if (empty($middlename)) {
+        $errors['middlename'] = 'Middle name is required.';
+    } elseif (strlen($middlename) > 50) {
+        $errors['middlename'] = 'Middle name must be less than 50 characters.';
+    } elseif (!preg_match($namePattern, $middlename)) {
+        $errors['middlename'] = 'Middle name can only contain letters. No numbers or special characters allowed.';
     }
 
     // Validate email
@@ -222,6 +222,83 @@ function errorClass($field) {
     <title>Register - Lot Reservation</title>
     <link rel="stylesheet" href="register.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-input {
+            border-color: #ff4444 !important;
+        }
+        .field-error {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+        .js-error {
+            display: none;
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .success i {
+            margin-right: 10px;
+        }
+        .password-container {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .role-fields {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        /* Autocomplete styles */
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        .autocomplete-active {
+            background-color: #007bff !important;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
     <div class="form-container">
@@ -244,7 +321,8 @@ function errorClass($field) {
                     <label for="firstname">First Name</label>
                     <input type="text" id="firstname" name="firstname" 
                            value="<?= htmlspecialchars($formData['firstname']) ?>" 
-                           class="<?= errorClass('firstname') ?>" required>
+                           class="<?= errorClass('firstname') ?>" required
+                           onkeypress="return /[a-zA-Z\s'-]/i.test(event.key)">
                     <?= showError('firstname') ?>
                     <div id="firstname-error" class="js-error">First name can only contain letters. No numbers or special characters allowed.</div>
                 </div>
@@ -252,13 +330,27 @@ function errorClass($field) {
                     <label for="lastname">Last Name</label>
                     <input type="text" id="lastname" name="lastname" 
                            value="<?= htmlspecialchars($formData['lastname']) ?>" 
-                           class="<?= errorClass('lastname') ?>" required>
+                           class="<?= errorClass('lastname') ?>" required
+                           onkeypress="return /[a-zA-Z\s'-]/i.test(event.key)">
                     <?= showError('lastname') ?>
                     <div id="lastname-error" class="js-error">Last name can only contain letters. No numbers or special characters allowed.</div>
                 </div>
             </div>
             
-            <!-- Row 2: Contact Info -->
+            <!-- Row 2: Middle Name -->
+            <div class="form-row">
+                <div class="form-group required">
+                    <label for="middlename">Middle Name</label>
+                    <input type="text" id="middlename" name="middlename" 
+                           value="<?= htmlspecialchars($formData['middlename']) ?>" 
+                           class="<?= errorClass('middlename') ?>" required
+                           onkeypress="return /[a-zA-Z\s'-]/i.test(event.key)">
+                    <?= showError('middlename') ?>
+                    <div id="middlename-error" class="js-error">Middle name can only contain letters. No numbers or special characters allowed.</div>
+                </div>
+            </div>
+            
+            <!-- Row 3: Contact Info -->
             <div class="form-row">
                 <div class="form-group required">
                     <label for="email">Email</label>
@@ -271,18 +363,21 @@ function errorClass($field) {
                     <label for="phone">Phone</label>
                     <input type="tel" id="phone" name="phone" 
                            value="<?= htmlspecialchars($formData['phone']) ?>" 
-                           class="<?= errorClass('phone') ?>" required>
+                           class="<?= errorClass('phone') ?>" required
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                           maxlength="15">
                     <?= showError('phone') ?>
                 </div>
             </div>
             
-            <!-- Row 3: Security -->
+            <!-- Row 4: Security -->
             <div class="form-row">
                 <div class="form-group required">
                     <label for="password">Password</label>
                     <div class="password-container">
                         <input type="password" id="password" name="password" 
-                               class="password-field <?= errorClass('password') ?>" required>
+                               class="password-field <?= errorClass('password') ?>" required
+                               onpaste="return false;" oncopy="return false;" oncut="return false;">
                         <button type="button" id="password-toggle" class="password-toggle" aria-label="Toggle password visibility">
                             <i class="fas fa-eye" id="password-toggle-icon"></i>
                         </button>
@@ -299,21 +394,17 @@ function errorClass($field) {
                 </div>
             </div>
             
-            <!-- Row 4: Additional Info -->
+            <!-- Row 5: Additional Info -->
             <div class="form-row">
                 <div class="form-group">
-                    <label for="middlename">Middle Name</label>
-                    <input type="text" id="middlename" name="middlename" 
-                           value="<?= htmlspecialchars($formData['middlename']) ?>" 
-                           class="<?= errorClass('middlename') ?>">
-                    <?= showError('middlename') ?>
-                    <div id="middlename-error" class="js-error">Middle name can only contain letters. No numbers or special characters allowed.</div>
-                </div>
-                <div class="form-group">
                     <label for="address">Address</label>
-                    <input type="text" id="address" name="address" 
-                           value="<?= htmlspecialchars($formData['address']) ?>" 
-                           class="<?= errorClass('address') ?>">
+                    <div class="autocomplete">
+                        <input type="text" id="address" name="address" 
+                               value="<?= htmlspecialchars($formData['address']) ?>" 
+                               class="<?= errorClass('address') ?>"
+                               placeholder="Start typing city or barangay...">
+                        <div id="autocomplete-results" class="autocomplete-items"></div>
+                    </div>
                     <?= showError('address') ?>
                 </div>
             </div>
@@ -358,22 +449,121 @@ function errorClass($field) {
     </div>
 
     <script>
+        // Cebu address database
+        const cebuAddresses = [
+            // Cebu City
+            "Cebu City - Adlaon",
+            "Cebu City - Apas",
+            "Cebu City - Bacayan",
+            "Cebu City - Banilad",
+            "Cebu City - Basak Pardo",
+            "Cebu City - Basak San Nicolas",
+            // ... [add all other Cebu City barangays]
+            
+            // Minglanilla
+            "Minglanilla - Cadulawan",
+            "Minglanilla - Calajo-an",
+            "Minglanilla - Camp 7",
+            "Minglanilla - Camp 8",
+            "Minglanilla - Cuanos",
+            "Minglanilla - Guindaruhan",
+            "Minglanilla - Linao",
+            "Minglanilla - Manduang",
+            "Minglanilla - Pakigne",
+            "Minglanilla - Poblacion Ward I",
+            "Minglanilla - Poblacion Ward II",
+            "Minglanilla - Poblacion Ward III",
+            "Minglanilla - Poblacion Ward IV",
+            "Minglanilla - Tubod",
+            "Minglanilla - Tulay",
+            "Minglanilla - Tunghaan",
+            "Minglanilla - Tungkil",
+            "Minglanilla - Tungkop",
+            "Minglanilla - Vito",
+            
+            // Other cities
+            "Talisay City - Biasong",
+            "Talisay City - Bulacao",
+            // ... [add all other cities/barangays]
+        ];
+
+        function autocomplete(inp, arr) {
+            let currentFocus;
+            inp.addEventListener("input", function(e) {
+                const resultsDiv = document.getElementById("autocomplete-results");
+                resultsDiv.innerHTML = '';
+                const val = this.value.toLowerCase();
+                
+                if (!val) return false;
+                
+                currentFocus = -1;
+                
+                const matches = arr.filter(item => 
+                    item.toLowerCase().includes(val)
+                ).slice(0, 10); // Show max 10 results
+                
+                matches.forEach(match => {
+                    const div = document.createElement("div");
+                    div.innerHTML = "<strong>" + match.substring(0, val.length) + "</strong>";
+                    div.innerHTML += match.substring(val.length);
+                    div.innerHTML += "<input type='hidden' value='" + match + "'>";
+                    div.addEventListener("click", function() {
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        resultsDiv.innerHTML = '';
+                    });
+                    resultsDiv.appendChild(div);
+                });
+            });
+            
+            inp.addEventListener("keydown", function(e) {
+                let items = document.getElementById("autocomplete-results").children;
+                if (e.keyCode === 40) { // Down arrow
+                    currentFocus++;
+                    addActive(items);
+                } else if (e.keyCode === 38) { // Up arrow
+                    currentFocus--;
+                    addActive(items);
+                } else if (e.keyCode === 13) { // Enter
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        items[currentFocus].click();
+                    }
+                }
+            });
+            
+            function addActive(items) {
+                if (!items) return false;
+                removeActive(items);
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (items.length - 1);
+                items[currentFocus].classList.add("autocomplete-active");
+            }
+            
+            function removeActive(items) {
+                Array.from(items).forEach(item => {
+                    item.classList.remove("autocomplete-active");
+                });
+            }
+            
+            // Close the autocomplete when clicking elsewhere
+            document.addEventListener("click", function(e) {
+                if (e.target !== inp) {
+                    document.getElementById("autocomplete-results").innerHTML = '';
+                }
+            });
+        }
+
         function toggleFields() {
             const role = document.getElementById('role').value;
             const agentFields = document.getElementById('agent-fields');
             const clientFields = document.getElementById('client-fields');
             
-            // Show agent fields if the role is AGENT
             agentFields.style.display = (role === 'AGENT') ? 'block' : 'none';
-            
-            // Show client fields if the role is CLIENT
             clientFields.style.display = (role === 'CLIENT') ? 'block' : 'none';
             
-            // Set license field as required only for AGENT
             const licenseField = document.getElementById('license_number');
             licenseField.required = (role === 'AGENT');
             
-            // Clear validation styling when switching roles
             if (role !== 'AGENT') {
                 licenseField.classList.remove('error-input');
                 const errorElement = licenseField.nextElementSibling;
@@ -383,8 +573,10 @@ function errorClass($field) {
             }
         }
         
-        // Client-side validation
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize autocomplete
+            autocomplete(document.getElementById("address"), cebuAddresses);
+            
             // Password visibility toggle
             const passwordField = document.getElementById('password');
             const passwordToggle = document.getElementById('password-toggle');
@@ -394,7 +586,6 @@ function errorClass($field) {
                 const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordField.setAttribute('type', type);
                 
-                // Toggle icon
                 if (type === 'password') {
                     passwordToggleIcon.classList.remove('fa-eye-slash');
                     passwordToggleIcon.classList.add('fa-eye');
@@ -412,32 +603,26 @@ function errorClass($field) {
             ];
             const namePattern = /^[a-zA-ZÀ-ÖØ-öø-ÿ\s\'-]+$/;
             
-            // Validate name fields on blur (when user leaves the field)
             nameFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 const errorElement = document.getElementById(field.errorId);
                 
                 if (input && errorElement) {
                     input.addEventListener('blur', function() {
-                        // Only validate if there's a value (middlename is optional)
                         if (this.value.trim() !== '') {
                             if (!namePattern.test(this.value)) {
-                                // Show error message
                                 errorElement.style.display = 'block';
                                 this.classList.add('error-input');
                             } else {
-                                // Hide error message
                                 errorElement.style.display = 'none';
                                 this.classList.remove('error-input');
                             }
                         } else {
-                            // Empty field, hide error
                             errorElement.style.display = 'none';
                             this.classList.remove('error-input');
                         }
                     });
                     
-                    // Clear error when user starts typing again
                     input.addEventListener('focus', function() {
                         errorElement.style.display = 'none';
                     });
@@ -453,17 +638,14 @@ function errorClass($field) {
                         let isValid = true;
                         let errorMessage = '';
                         
-                        // Check password length
                         if (this.value.length < 8) {
                             isValid = false;
                             errorMessage = 'Password must be at least 8 characters long.';
                         }
-                        // Check for uppercase letter
                         else if (!/[A-Z]/.test(this.value)) {
                             isValid = false;
                             errorMessage = 'Password must contain at least one uppercase letter.';
                         }
-                        // Check for number
                         else if (!/[0-9]/.test(this.value)) {
                             isValid = false;
                             errorMessage = 'Password must contain at least one number.';
@@ -478,19 +660,28 @@ function errorClass($field) {
                             this.classList.remove('error-input');
                         }
                     } else {
-                        // Empty field, hide error
                         passwordError.style.display = 'none';
                         this.classList.remove('error-input');
                     }
                 });
                 
-                // Clear error when user starts typing again
                 passwordField.addEventListener('focus', function() {
                     passwordError.style.display = 'none';
                 });
             }
             
-            // Form submission validation
+            // Phone number input trapping
+            const phoneField = document.getElementById('phone');
+            if (phoneField) {
+                phoneField.addEventListener('keypress', function(e) {
+                    const charCode = (e.which) ? e.which : e.keyCode;
+                    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // Prevent form submission if there are errors
             document.getElementById('registrationForm').addEventListener('submit', function(e) {
                 let hasErrors = false;
                 
@@ -499,7 +690,6 @@ function errorClass($field) {
                     const input = document.getElementById(field.id);
                     const errorElement = document.getElementById(field.errorId);
                     
-                    // Skip validation for empty optional fields (middlename)
                     if (input && input.value.trim() !== '' && !namePattern.test(input.value)) {
                         errorElement.style.display = 'block';
                         input.classList.add('error-input');
@@ -526,9 +716,26 @@ function errorClass($field) {
                     }
                 }
                 
+                // Check required fields
+                const requiredFields = ['firstname', 'middlename', 'lastname', 'email', 'phone', 'password'];
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field && field.value.trim() === '') {
+                        hasErrors = true;
+                        if (!field.classList.contains('error-input')) {
+                            field.classList.add('error-input');
+                        }
+                    }
+                });
+                
                 // If there are client-side validation errors, prevent form submission
                 if (hasErrors) {
                     e.preventDefault();
+                    // Scroll to the first error
+                    const firstError = document.querySelector('.error-input');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             });
             

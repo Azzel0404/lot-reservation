@@ -17,7 +17,6 @@ $agent_user_id = $_SESSION['user_id'];
 $total_clients = 0;
 $total_commission = 0;
 $approved_reservations = 0;
-$pending_reservations = 0;
 $recent_activities = [];
 
 try {
@@ -87,7 +86,6 @@ try {
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
-    $pending_reservations = $row['total'] ?? 0;
     $stmt->close();
 
     // 5. Get recent activities
@@ -206,13 +204,7 @@ try {
                         <div class="label">Approved Reservations</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card" style="background: linear-gradient(135deg, var(--primary-color), #4895ef);">
-                        <i class="fas fa-clock"></i>
-                        <div class="count"><?php echo $pending_reservations; ?></div>
-                        <div class="label">Pending Reservations</div>
-                    </div>
-                </div>
+             
             </div>
 
             <div class="content-card mb-4">

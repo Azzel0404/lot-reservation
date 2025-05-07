@@ -72,12 +72,12 @@ try {
                 "SELECT payment_id FROM payment WHERE payment_method = '$payment_method'");
             $payment_data = mysqli_fetch_assoc($payment_result);
             $payment_id = (int)$payment_data['payment_id'];
-
+            
             $reservation_date = date('Y-m-d H:i:s');
             $date_approved = $reservation_date;
 
             // Insert reservation into the database
-            $stmt = $conn->prepare("INSERT INTO reservation (client_id, lot_id, payment_id, reservation_fee, status, reservation_date, date_approved)
+            $stmt = $conn->prepare("INSERT INTO reserva tion (client_id, lot_id, payment_id, reservation_fee, status, reservation_date, date_approved)
                                     VALUES (?, ?, ?, ?, 'Approved', ?, ?)");
             $stmt->bind_param("iiidss", $client_id, $lot_id, $payment_id, $reservation_fee, $reservation_date, $date_approved);
             $stmt->execute();

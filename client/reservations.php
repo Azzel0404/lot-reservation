@@ -280,7 +280,7 @@ if ($stmt) {
             <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
             <h4>No Reservations Found</h4>
             <p class="text-muted">You haven't made any reservations yet.</p>
-            <a href="../client/lots/available_lots.php" class="btn btn-primary mt-2">Browse Available Lots</a>
+            <a href="../client/available_lots.php" class="btn btn-primary mt-2">Browse Available Lots</a>
         </div>
     <?php endif; ?>
 </div>

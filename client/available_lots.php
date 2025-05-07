@@ -6,6 +6,8 @@ include('../config/db.php');
 $location_filter = $_GET['location'] ?? '';
 $size_min = $_GET['size_min'] ?? '';
 $size_max = $_GET['size_max'] ?? '';
+$price_min = $_GET['price_min'] ?? '';
+$price_max = $_GET['price_max'] ?? '';
 
 // Build the base query
 $query = "SELECT * FROM lot WHERE status = 'Available'";
@@ -24,6 +26,14 @@ if (!empty($size_max)) {
     $query .= " AND size_meter_square <= ?";    
     $params[] = $size_max;
 }
+if (!empty($price_min)) {
+    $query .= " AND price >= ?";
+    $params[] = $price_min;
+}
+if (!empty($price_max)) {
+    $query .= " AND price <= ?";    
+    $params[] = $price_max;
+}   
 
 // Prepare and execute the query
 $stmt = mysqli_prepare($conn, $query);
@@ -123,9 +133,21 @@ $result = mysqli_stmt_get_result($stmt);
                            placeholder="Max size" min="0" value="<?= htmlspecialchars($size_max ?? '') ?>">
                 </div>
             </div>
+
+            <!-- Price Range Filter -->
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-tag text-muted"></i></span>
+                    <input type="number" class="form-control form-control-sm" name="price_min" 
+                            placeholder="Min price" min="0" value="<?= htmlspecialchars($price_min ?? '') ?>">
+                    <span class="input-group-text bg-white px-1">-</span>
+                    <input type="number" class="form-control form-control-sm" name="price_max" 
+                            placeholder="Max price" min="0" value="<?= htmlspecialchars($price_max ?? '') ?>">
+                </div>
+            </div>
             
             <!-- Action Buttons -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="d-flex gap-1">
                     <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
                         <i class="fas fa-filter me-1"></i> Filter
@@ -145,29 +167,45 @@ $result = mysqli_stmt_get_result($stmt);
             <div class="d-flex flex-wrap gap-1 align-items-center">
                 <small class="text-muted me-1">Active filters:</small>
                 <?php if (!empty($location_filter)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Location: <?= htmlspecialchars($location_filter) ?>
-                        <a href="?<?= http_build_query(array_merge($_GET, ['location' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($size_min)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Min: <?= htmlspecialchars($size_min) ?> sqm
-                        <a href="?<?= http_build_query(array_merge($_GET, ['size_min' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($size_max)): ?>
-                    <span class="badge bg-light text-dark border">
-                        Max: <?= htmlspecialchars($size_max) ?> sqm
-                        <a href="?<?= http_build_query(array_merge($_GET, ['size_max' => ''])) ?>" class="text-reset ms-1">
-                            <i class="fas fa-times small"></i>
-                        </a>
-                    </span>
-                <?php endif; ?>
+                        <span class="badge bg-light text-dark border">
+                            Location: <?= htmlspecialchars($location_filter) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['location' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($size_min)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Min: <?= htmlspecialchars($size_min) ?> sqm
+                            <a href="?<?= http_build_query(array_merge($_GET, ['size_min' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($size_max)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Max: <?= htmlspecialchars($size_max) ?> sqm
+                            <a href="?<?= http_build_query(array_merge($_GET, ['size_max' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($price_min)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Min: ₱<?= number_format(htmlspecialchars($price_min)) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['price_min' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($price_max)): ?>
+                        <span class="badge bg-light text-dark border">
+                            Max: ₱<?= number_format(htmlspecialchars($price_max)) ?>
+                            <a href="?<?= http_build_query(array_merge($_GET, ['price_max' => ''])) ?>" class="text-reset ms-1">
+                                <i class="fas fa-times small"></i>
+                            </a>
+                        </span>
+                    <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>
@@ -194,6 +232,10 @@ $result = mysqli_stmt_get_result($stmt);
                             <p class="card-text mb-2">
                                 <i class="fas fa-ruler-combined text-muted me-2"></i>
                                 <strong>Size:</strong> <?= number_format($lot['size_meter_square']) ?> sqm
+                            </p>
+                            <p class="card-text mb-2">
+                                <i class="fas fa-dollar-sign text-muted me-2"></i>
+                                <strong>Price:</strong> ₱<?= number_format($lot['price'], 2) ?>
                             </p>
                             <p class="card-text mb-0">
                                 <i class="fas fa-map-pin text-muted me-2"></i>
