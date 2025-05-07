@@ -3,24 +3,30 @@
 session_start();
 include('../../config/db.php');
 
-
-// Fetch counts from the database
+// Fetch the total number of reservations
 $total_reservations_query = "SELECT COUNT(*) AS total FROM reservation";
 $total_reservations_result = mysqli_query($conn, $total_reservations_query);
 $total_reservations = mysqli_fetch_assoc($total_reservations_result)['total'];
 
+// Fetch the total number of approved reservations
 $approved_reservations_query = "SELECT COUNT(*) AS approved FROM reservation WHERE status = 'Approved'";
 $approved_reservations_result = mysqli_query($conn, $approved_reservations_query);
 $approved_reservations = mysqli_fetch_assoc($approved_reservations_result)['approved'];
 
-$expired_reservations_query = "SELECT COUNT(*) AS expired FROM reservation WHERE status = 'Expired'";
-$expired_reservations_result = mysqli_query($conn, $expired_reservations_query);
-$expired_reservations = mysqli_fetch_assoc($expired_reservations_result)['expired'];
-
+// Fetch the total number of users (CLIENT and AGENT)
 $total_users_query = "SELECT COUNT(*) AS total_users FROM user WHERE role IN ('CLIENT', 'AGENT')";
 $total_users_result = mysqli_query($conn, $total_users_query);
 $total_users = mysqli_fetch_assoc($total_users_result)['total_users'];
 
+// Query to get the count of available and reserved lots
+$lot_status_query = "SELECT 
+                           SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available,
+                           SUM(CASE WHEN status = 'Reserved' THEN 1 ELSE 0 END) AS reserved
+                        FROM lot";
+$lot_status_result = mysqli_query($conn, $lot_status_query);
+$lot_status = mysqli_fetch_assoc($lot_status_result);
+$available_lots = $lot_status['available'];
+$reserved_lots = $lot_status['reserved'];
 ?>
 
 <!DOCTYPE html>
@@ -56,15 +62,12 @@ $total_users = mysqli_fetch_assoc($total_users_result)['total_users'];
                     <h3><?php echo $total_users; ?></h3>
                     <p>Total Users</p>
                 </div>
-                <div class="card red">
-                    <h3><?php echo $expired_reservations; ?></h3>
-                    <p>Expired Reservations</p>
-                </div>
             </section>
 
             <section class="donut-chart">
                 <div class="card donut">
                     <canvas id="lotChart"></canvas>
+                    <p class="chart-description">Lots</p>
                 </div>
             </section>
 
@@ -100,7 +103,7 @@ new Chart(ctx, {
     data: {
         labels: ['Available', 'Reserved'],
         datasets: [{
-            data: [27, 73], // Replace with dynamic data if needed
+            data: [<?php echo $available_lots; ?>, <?php echo $reserved_lots; ?>],
             backgroundColor: ['#28a745', '#007bff'],
         }]
     },

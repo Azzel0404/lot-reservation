@@ -151,3 +151,11 @@
 .filter-btn:hover {
     background-color: #34495e;
 }
+
+.chart-description {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+    margin-top: 10px;
+    font-weight: normal;
+}
