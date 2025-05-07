@@ -1,6 +1,8 @@
 INSERT INTO user (email, password, role, phone, address) VALUES 
 ( 'admin@example.com', 'admin123', 'ADMIN', '09171234567', 'Admin Address' );
 
+INSERT INTO payment (payment_method) VALUES ('Cash'), ('Credit');
+
 CREATE TABLE user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -54,7 +56,9 @@ CREATE TABLE reservation (
     status VARCHAR(10) NOT NULL CHECK (status IN ('Approved', 'Expired')),
     reservation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_approved DATETIME,
-    request_form LONGBLOB,
+    ADD COLUMN aerial_image VARCHAR(255) AFTER status,
+    ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image,
+    ADD COLUMN pdf_file VARCHAR(255) AFTER numbered_image,
     FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY (lot_id) REFERENCES lot(lot_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_id) REFERENCES payment(payment_id) ON DELETE CASCADE
@@ -69,12 +73,6 @@ CREATE TABLE agent_commission (
     FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id) ON DELETE CASCADE
 );
 
-ALTER TABLE lot
-ADD COLUMN aerial_image VARCHAR(255) AFTER status,
-ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image,
-ADD COLUMN pdf_file VARCHAR(255) AFTER numbered_image;
-
-DELIMITER //
 
 DELIMITER //
 
@@ -115,7 +113,7 @@ BEGIN
 END //
 
 DELIMITER ;
-CALL sp_calculate_agent_commission_dynamic(1, 10, 5.00);
+
 
 DELIMITER //
 
