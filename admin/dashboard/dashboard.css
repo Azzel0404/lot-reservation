@@ -109,6 +109,7 @@
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+    margin-top: 30px; /* Adjusted margin-top to lower the position */
 }
 
 .card.donut {
@@ -121,14 +122,58 @@
 }
 
 .chart-description {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-.chart-description {
     text-align: center;
     font-size: 16px;
     color: #333;
     margin-top: 10px;
     font-weight: normal;
+}
+
+/* Styling for the agent commission table */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f4f4f4;
+}
+.commission-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.commission-table th, .commission-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.commission-table th {
+    background-color: #f4f4f4;
+}
+/* Styling for the reserved lots table */
+.reserved-lots-table {
+    width: 100%;
+    margin-top: 20px;  /* Adds space above the table */
+    border-collapse: collapse;
+}
+
+.reserved-lots-table th, .reserved-lots-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.reserved-lots-table th {
+    background-color: #f4f4f4;
+    font-size: 18px;  /* Slightly larger font size for the headers */
 }

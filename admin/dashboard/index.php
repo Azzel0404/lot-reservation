@@ -1,35 +1,31 @@
 <!--lot-reservation/admin/dashboard/index.php-->
-<!--lot-reservation/admin/dashboard/index.php-->
 <?php
 session_start();
 include('../../config/db.php');
 
-// Fetch the total number of reservations
+// Fetch reservation counts
 $total_reservations_query = "SELECT COUNT(*) AS total FROM reservation";
 $total_reservations_result = mysqli_query($conn, $total_reservations_query);
 $total_reservations = mysqli_fetch_assoc($total_reservations_result)['total'];
 
-// Fetch the total number of approved reservations
 $approved_reservations_query = "SELECT COUNT(*) AS approved FROM reservation WHERE status = 'Approved'";
 $approved_reservations_result = mysqli_query($conn, $approved_reservations_query);
 $approved_reservations = mysqli_fetch_assoc($approved_reservations_result)['approved'];
 
-// Fetch the total number of users (CLIENT and AGENT)
+// Fetch user counts
 $total_users_query = "SELECT COUNT(*) AS total_users FROM user WHERE role IN ('CLIENT', 'AGENT')";
 $total_users_result = mysqli_query($conn, $total_users_query);
 $total_users = mysqli_fetch_assoc($total_users_result)['total_users'];
 
-// Fetch the total number of clients
 $total_clients_query = "SELECT COUNT(*) AS total_clients FROM user WHERE role = 'CLIENT'";
 $total_clients_result = mysqli_query($conn, $total_clients_query);
 $total_clients = mysqli_fetch_assoc($total_clients_result)['total_clients'];
 
-// Fetch the total number of agents
 $total_agents_query = "SELECT COUNT(*) AS total_agents FROM user WHERE role = 'AGENT'";
 $total_agents_result = mysqli_query($conn, $total_agents_query);
 $total_agents = mysqli_fetch_assoc($total_agents_result)['total_agents'];
 
-// Query to get the count of available and reserved lots
+// Fetch lot status
 $lot_status_query = "SELECT 
                            SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available,
                            SUM(CASE WHEN status = 'Reserved' THEN 1 ELSE 0 END) AS reserved
@@ -38,9 +34,38 @@ $lot_status_result = mysqli_query($conn, $lot_status_query);
 $lot_status = mysqli_fetch_assoc($lot_status_result);
 $available_lots = $lot_status['available'];
 $reserved_lots = $lot_status['reserved'];
-
-// Fetch total number of lots (available + reserved)
 $total_lots = $available_lots + $reserved_lots;
+
+// Fetch clients with reservation info
+$clients_with_reservation_query = "
+    SELECT 
+        c.client_id,
+        CONCAT(c.firstname, ' ', c.middlename, ' ', c.lastname) AS client_name,
+        COUNT(r.reservation_id) AS total_reservations,
+        GROUP_CONCAT(l.lot_number SEPARATOR ', ') AS lot_numbers
+    FROM reservation r
+    JOIN client c ON r.client_id = c.client_id
+    JOIN lot l ON r.lot_id = l.lot_id
+    GROUP BY c.client_id
+";
+$clients_with_reservation_result = mysqli_query($conn, $clients_with_reservation_query);
+$clients_with_reservation = [];
+while ($row = mysqli_fetch_assoc($clients_with_reservation_result)) {
+    $clients_with_reservation[] = $row;
+}
+
+// Fetch number of agents with commissions
+$agents_with_commission_query = "
+    SELECT a.firstname, a.lastname, a.license_number, SUM(ac.commission_fee) AS total_commission
+    FROM agent_commission ac
+    JOIN agent a ON ac.agent_id = a.agent_id
+    GROUP BY a.agent_id
+";
+$agents_with_commission_result = mysqli_query($conn, $agents_with_commission_query);
+$agents_with_commission = [];
+while ($row = mysqli_fetch_assoc($agents_with_commission_result)) {
+    $agents_with_commission[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,28 +75,6 @@ $total_lots = $available_lots + $reserved_lots;
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        .donut-chart {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .card.donut {
-            width: 350px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .chart-description {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
 
@@ -115,11 +118,11 @@ $total_lots = $available_lots + $reserved_lots;
             <section class="donut-chart">
                 <div class="card donut">
                     <canvas id="lotChart"></canvas>
-                    <p class="chart-description">Lots </p>
+                    <p class="chart-description">Lots</p>
                 </div>
                 <div class="card donut">
                     <canvas id="userChart"></canvas>
-                    <p class="chart-description">Users </p>
+                    <p class="chart-description">Users</p>
                 </div>
             </section>
 
@@ -128,12 +131,64 @@ $total_lots = $available_lots + $reserved_lots;
                 <div class="card report-summary">
                     <p><strong>Total Reservations:</strong> <?php echo $total_reservations; ?></p>
                     <p><strong>Approved Reservations:</strong> <?php echo $approved_reservations; ?></p>
-                    <p><strong>Total Users:</strong> <?php echo $total_users; ?></p>
-                    <p><strong>Total Clients:</strong> <?php echo $total_clients; ?></p>
-                    <p><strong>Total Agents:</strong> <?php echo $total_agents; ?></p>
+                    <p><strong>Total Users:</strong> <?php echo $total_users; ?> (Agents: <?php echo $total_agents; ?>, Clients: <?php echo $total_clients; ?>)</p>
                     <p><strong>Total Lots:</strong> <?php echo $total_lots; ?> (Available: <?php echo $available_lots; ?>, Reserved: <?php echo $reserved_lots; ?>)</p>
+                    <p><strong>Agents with Commission:</strong> <?php echo count($agents_with_commission); ?></p>
                 </div>
             </section>
+
+            <!-- New Section to display client reservation details -->
+            <section class="client-reservation-details">
+                <h3>Clients with Reservation</h3>
+                <table class="commission-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Total Reservations</th>
+                            <th>Reserved Lot Numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($clients_with_reservation)): ?>
+                            <?php foreach ($clients_with_reservation as $client): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($client['client_name']); ?></td>
+                                    <td><?php echo $client['total_reservations']; ?></td>
+                                    <td><?php echo htmlspecialchars($client['lot_numbers']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3">No reservation data available.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Existing Agent Commission Table -->
+            <section class="agent-commission-details">
+                <h3>Agents with Commission</h3>
+                <table class="commission-table">
+                    <thead>
+                        <tr>
+                            <th>Agent Name</th>
+                            <th>License Number</th>
+                            <th>Total Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($agents_with_commission as $agent): ?>
+                            <tr>
+                                <td><?php echo $agent['firstname'] . ' ' . $agent['lastname']; ?></td>
+                                <td><?php echo $agent['license_number']; ?></td>
+                                <td><?php echo number_format($agent['total_commission'], 2); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </section>
+
         </div>
     </div>
 </div>
