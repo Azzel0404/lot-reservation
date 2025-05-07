@@ -56,9 +56,9 @@ CREATE TABLE reservation (
     status VARCHAR(10) NOT NULL CHECK (status IN ('Approved', 'Expired')),
     reservation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_approved DATETIME,
-    ADD COLUMN aerial_image VARCHAR(255) AFTER status,
-    ADD COLUMN numbered_image VARCHAR(255) AFTER aerial_image,
-    ADD COLUMN pdf_file VARCHAR(255) AFTER numbered_image,
+    aerial_image VARCHAR(255) AFTER status,
+    numbered_image VARCHAR(255) AFTER aerial_image,
+    pdf_file VARCHAR(255) AFTER numbered_image;
     FOREIGN KEY (client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY (lot_id) REFERENCES lot(lot_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_id) REFERENCES payment(payment_id) ON DELETE CASCADE
@@ -72,7 +72,6 @@ CREATE TABLE agent_commission (
     FOREIGN KEY (agent_id) REFERENCES agent(agent_id) ON DELETE CASCADE,
     FOREIGN KEY (reservation_id) REFERENCES reservation(reservation_id) ON DELETE CASCADE
 );
-
 
 DELIMITER //
 
