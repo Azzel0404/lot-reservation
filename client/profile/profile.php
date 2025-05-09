@@ -16,6 +16,26 @@ $pw_error = '';
 $show_edit_profile = false;
 $show_change_password = false;
 
+// Fetch list of agents (assuming you have an 'agents' table)
+$agent = [];
+$stmt = $conn->prepare("SELECT agent_id, firstname, lastname FROM agent");
+$stmt->execute();
+$stmt->bind_result($agent_id, $firstname, $lastname);
+while ($stmt->fetch()) {
+    $agent[] = ['id' => $agent_id, 'name' => $firstname . ' ' . $lastname];
+}
+$stmt->close();
+
+// Fetch current profile data
+$stmt = $conn->prepare("SELECT u.email, u.phone, u.address, c.firstname, c.middlename, c.lastname, c.agent_id
+                        FROM user u 
+                        JOIN client c ON u.user_id = c.user_id WHERE u.user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($email, $phone, $address, $firstname, $middlename, $lastname, $current_agent_id);
+$stmt->fetch();
+$stmt->close();
+
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $email = trim($_POST['email']);
@@ -24,14 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $firstname = trim($_POST['firstname']);
     $middlename = trim($_POST['middlename']);
     $lastname = trim($_POST['lastname']);
+    $agent_id = $_POST['agent_id'] ? $_POST['agent_id'] : NULL;
 
+    // Update user info
     $stmtUser = $conn->prepare("UPDATE user SET email = ?, phone = ?, address = ? WHERE user_id = ?");
     $stmtUser->bind_param("sssi", $email, $phone, $address, $user_id);
     $userUpdated = $stmtUser->execute();
     $stmtUser->close();
 
-    $stmtClient = $conn->prepare("UPDATE client SET firstname = ?, middlename = ?, lastname = ? WHERE user_id = ?");
-    $stmtClient->bind_param("sssi", $firstname, $middlename, $lastname, $user_id);
+    // Update client info with agent_id
+    $stmtClient = $conn->prepare("UPDATE client SET firstname = ?, middlename = ?, lastname = ?, agent_id = ? WHERE user_id = ?");
+    $stmtClient->bind_param("ssssi", $firstname, $middlename, $lastname, $agent_id, $user_id);
     $clientUpdated = $stmtClient->execute();
     $stmtClient->close();
 
@@ -79,15 +102,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     $show_edit_profile = false;
     $show_change_password = true;
 }
-
-// Fetch current profile
-$stmt = $conn->prepare("SELECT u.email, u.phone, u.address, c.firstname, c.middlename, c.lastname
-                        FROM user u JOIN client c ON u.user_id = c.user_id WHERE u.user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$stmt->bind_result($email, $phone, $address, $firstname, $middlename, $lastname);
-$stmt->fetch();
-$stmt->close();
 
 // Handle view switching
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -225,6 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <!-- Navbar -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid px-4">
         <!-- Profile on the left -->
@@ -247,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                 </li>
                 <li class="nav-item mx-2">
-                    <a class="nav-link" href="../lots/available_lots.php">
+                    <a class="nav-link" href="available_lots.php">
                         <i class="fas fa-th me-1"></i> <span>Lots</span>
                     </a>
                 </li>
@@ -272,144 +287,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </nav>
 
+<div class="container profile-container">
+    <h3 class="profile-header">Client Profile</h3>
 
-<div class="profile-container">
-    <!-- View Profile -->
-    <?php if (!$show_edit_profile && !$show_change_password) : ?>
-        <div class="profile-section">
-            <h4 class="mb-3">Profile Information</h4>
-            
-            <div class="profile-detail">
-                <div class="profile-label">Email:</div>
-                <div class="profile-value"><?= htmlspecialchars($email) ?></div>
-            </div>
-            
-            <div class="profile-detail">
-                <div class="profile-label">Phone:</div>
-                <div class="profile-value"><?= htmlspecialchars($phone) ?></div>
-            </div>
-            
-            <div class="profile-detail">
-                <div class="profile-label">Address:</div>
-                <div class="profile-value"><?= htmlspecialchars($address) ?></div>
-            </div>
-            
-            <div class="profile-detail">
-                <div class="profile-label">First Name:</div>
-                <div class="profile-value"><?= htmlspecialchars($firstname) ?></div>
-            </div>
-            
-            <div class="profile-detail">
-                <div class="profile-label">Middle Name:</div>
-                <div class="profile-value"><?= htmlspecialchars($middlename) ?></div>
-            </div>
-            
-            <div class="profile-detail">
-                <div class="profile-label">Last Name:</div>
-                <div class="profile-value"><?= htmlspecialchars($lastname) ?></div>
-            </div>
-            
-            <div class="btn-group">
-                <form method="POST">
-                    <button type="submit" name="edit_profile" class="btn btn-primary btn-action">
-                        <i class="fas fa-edit me-1"></i> Edit Profile
-                    </button>
-                    <button type="submit" name="change_password_button" class="btn btn-secondary btn-action">
-                        <i class="fas fa-key me-1"></i> Change Password
-                    </button>
-                </form>
-            </div>
-        </div>
+    <!-- Success or error messages -->
+    <?php if ($success) : ?>
+        <div class="alert alert-success"><?= $success; ?></div>
+    <?php endif; ?>
+    
+    <?php if ($error) : ?>
+        <div class="alert alert-danger"><?= $error; ?></div>
+    <?php endif; ?>
+    
+    <!-- Password change success -->
+    <?php if ($pw_success) : ?>
+        <div class="alert alert-success"><?= $pw_success; ?></div>
     <?php endif; ?>
 
-    <!-- Edit Profile Form -->
-    <?php if ($show_edit_profile) : ?>
-        <div class="profile-section">
-            <h4 class="mb-3">Edit Profile</h4>
-            <?php if ($success) : ?><div class="alert alert-success"><?= $success ?></div><?php endif; ?>
-            <?php if ($error) : ?><div class="alert alert-danger"><?= $error ?></div><?php endif; ?>
+    <!-- Password change error -->
+    <?php if ($pw_error) : ?>
+        <div class="alert alert-danger"><?= $pw_error; ?></div>
+    <?php endif; ?>
 
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($email) ?>" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Phone</label>
-                    <input type="text" class="form-control" name="phone" value="<?= htmlspecialchars($phone) ?>" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Address</label>
-                    <input type="text" class="form-control" name="address" value="<?= htmlspecialchars($address) ?>">
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">First Name</label>
-                    <input type="text" class="form-control" name="firstname" value="<?= htmlspecialchars($firstname) ?>" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Middle Name</label>
-                    <input type="text" class="form-control" name="middlename" value="<?= htmlspecialchars($middlename) ?>">
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" class="form-control" name="lastname" value="<?= htmlspecialchars($lastname) ?>" required>
-                </div>
-                
-                <div class="btn-group">
-                    <button type="submit" name="update_profile" class="btn btn-primary btn-action">
-                        <i class="fas fa-save me-1"></i> Save Changes
-                    </button>
-                    <button type="submit" name="back_to_profile" class="btn btn-secondary btn-action">
-                        Cancel
-                    </button>
-                </div>
+    <!-- Profile section -->
+    <div class="profile-section">
+        <h4>Profile Information</h4>
+        <div class="profile-detail">
+            <div class="profile-label">Email:</div>
+            <div class="profile-value"><?= htmlspecialchars($email); ?></div>
+        </div>
+        <div class="profile-detail">
+            <div class="profile-label">Phone:</div>
+            <div class="profile-value"><?= htmlspecialchars($phone); ?></div>
+        </div>
+        <div class="profile-detail">
+            <div class="profile-label">Address:</div>
+            <div class="profile-value"><?= htmlspecialchars($address); ?></div>
+        </div>
+        <div class="profile-detail">
+            <div class="profile-label">Full Name:</div>
+            <div class="profile-value"><?= htmlspecialchars($firstname . ' ' . $middlename . ' ' . $lastname); ?></div>
+        </div>
+        <div class="profile-detail">
+            <div class="profile-label">Agent:</div>
+            <div class="profile-value"><?= $current_agent_id ? 'Assigned' : 'No agent assigned'; ?></div>
+        </div>
+        <div class="btn-group">
+            <form action="" method="post">
+                <button type="submit" class="btn btn-primary" name="edit_profile">Edit Profile</button>
+                <button type="submit" class="btn btn-secondary" name="change_password_button">Change Password</button>
             </form>
         </div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <?php if ($show_edit_profile): ?>
+    <div class="profile-section">
+        <h4>Edit Profile</h4>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="firstname" class="form-label">First Name</label>
+                <input type="text" name="firstname" id="firstname" class="form-control" value="<?= htmlspecialchars($firstname); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="middlename" class="form-label">Middle Name</label>
+                <input type="text" name="middlename" id="middlename" class="form-control" value="<?= htmlspecialchars($middlename); ?>">
+            </div>
+            <div class="form-group">
+                <label for="lastname" class="form-label">Last Name</label>
+                <input type="text" name="lastname" id="lastname" class="form-control" value="<?= htmlspecialchars($lastname); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="agent_id" class="form-label">Agent</label>
+                <select name="agent_id" id="agent_id" class="form-control">
+                    <option value="">No Agent</option>
+                    <?php foreach ($agent as $ag) : ?>
+                        <option value="<?= $ag['id']; ?>" <?= $current_agent_id == $ag['id'] ? 'selected' : ''; ?>>
+                            <?= htmlspecialchars($ag['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control" value="<?= htmlspecialchars($email); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="text" name="phone" id="phone" class="form-control" value="<?= htmlspecialchars($phone); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="address" class="form-label">Address</label>
+                <textarea name="address" id="address" class="form-control" required><?= htmlspecialchars($address); ?></textarea>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" name="update_profile">Save Changes</button>
+                <button type="submit" class="btn btn-secondary" name="back_to_profile">Back to Profile</button>
+            </div>
+        </form>
+    </div>
     <?php endif; ?>
 
     <!-- Change Password Form -->
-    <?php if ($show_change_password) : ?>
-        <div class="profile-section">
-            <h4 class="mb-3">Change Password</h4>
-            <?php if ($pw_success) : ?><div class="alert alert-success"><?= $pw_success ?></div><?php endif; ?>
-            <?php if ($pw_error) : ?><div class="alert alert-danger"><?= $pw_error ?></div><?php endif; ?>
-
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" class="form-control" name="old_password" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" name="new_password" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Confirm New Password</label>
-                    <input type="password" class="form-control" name="confirm_password" required>
-                </div>
-                
-                <div class="btn-group">
-                    <button type="submit" name="change_password" class="btn btn-primary btn-action">
-                        <i class="fas fa-key me-1"></i> Change Password
-                    </button>
-                    <button type="submit" name="back_to_profile" class="btn btn-secondary btn-action">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
+    <?php if ($show_change_password): ?>
+    <div class="profile-section">
+        <h4>Change Password</h4>
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="old_password" class="form-label">Old Password</label>
+                <input type="password" name="old_password" id="old_password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password" class="form-label">New Password</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" name="change_password">Change Password</button>
+                <button type="submit" class="btn btn-secondary" name="back_to_profile">Back to Profile</button>
+            </div>
+        </form>
+    </div>
     <?php endif; ?>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
