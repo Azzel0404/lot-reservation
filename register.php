@@ -303,7 +303,7 @@ function errorClass($field) {
             <!-- Row 4: Additional Info -->
             <div class="form-row">
                 <div class="form-group">
-                    <label for="middlename">Middle Name</label>
+                    <label for="middlename">Middle Name(optional)</label>
                     <input type="text" id="middlename" name="middlename" 
                            value="<?= htmlspecialchars($formData['middlename']) ?>" 
                            class="<?= errorClass('middlename') ?>">
