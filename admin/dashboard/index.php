@@ -19,10 +19,10 @@ $agent_commission_where = "1=1";
 // Apply time filters
 if ($time_filter === 'monthly') {
     $reservation_where .= " AND MONTH(reservation_date) = '$selected_month' AND YEAR(reservation_date) = '$selected_year'";
-    $agent_commission_where .= " AND MONTH(commission_date) = '$selected_month' AND YEAR(commission_date) = '$selected_year'";
+    $agent_commission_where .= " AND MONTH(created_at) = '$selected_month' AND YEAR(created_at) = '$selected_year'"; // Changed from commission_date to created_at
 } elseif ($time_filter === 'yearly') {
     $reservation_where .= " AND YEAR(reservation_date) = '$selected_year'";
-    $agent_commission_where .= " AND YEAR(commission_date) = '$selected_year'";
+    $agent_commission_where .= " AND YEAR(created_at) = '$selected_year'"; // Changed from commission_date to created_at
 }
 
 // Initialize all variables with default values
@@ -196,110 +196,28 @@ if (isset($_GET['export_summary'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Reporting System</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
-    <style>
-        @media print {
-            .sidebar, .top-bar, .client-reservation-details, .agent-commission-details, .donut-chart, .print-hide {
-                display: none !important;
-            }
-            
-            .layout-wrapper {
-                padding-left: 0 !important;
-                margin-top: 0 !important;
-            }
-            
-            .summary-reports {
-                display: block !important;
-                page-break-inside: avoid;
-            }
-            
-            .content-area {
-                padding: 20px !important;
-            }
-            
-            body {
-                background: white !important;
-                color: black !important;
-            }
-            
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
-            }
-        }
-        
-        /* Additional styles for time filter */
-        .time-filter {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
-            background: #f8f9fc;
-            padding: 15px;
-            border-radius: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .time-filter label {
-            font-weight: 600;
-            color: #5a5c69;
-        }
-        
-        .time-filter select, .time-filter input {
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            background-color: #fff;
-            font-size: 14px;
-            color: #5a5c69;
-        }
-        
-        .time-filter .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .time-filter button {
-            background-color: #4e73df;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .time-filter button:hover {
-            background-color: #2e59d9;
-        }
-        
-        .hidden-fields {
-            display: none;
-        }
-        
-        .reservation-sort {
-            margin-left: 15px;
-        }
-        
-        .reservation-sort select {
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            background-color: #fff;
-            font-size: 14px;
-            color: #5a5c69;
-        }
-    </style>
+   
 </head>
 <body>
 
 <div class="layout-wrapper">
-    <?php include('../sidebar.php'); ?>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">Reservelt</div>
+        <ul class="sidebar-nav">
+            <li><a href="/lot-reservation/admin/dashboard/index.php" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+            <li><a href="/lot-reservation/admin/reservation/reservations.php"><i class="fas fa-calendar-check"></i> <span>Reservations</span></a></li>
+            <li><a href="/lot-reservation/admin/lots/lots.php"><i class="fas fa-map"></i> <span>Lots</span></a></li>
+            <li><a href="/lot-reservation/admin/users/users.php"><i class="fas fa-users"></i> <span>Users</span></a></li>
+            <li><a href="/lot-reservation/logout.php"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </aside>
 
     <div class="content-area">
         <header class="top-bar">
@@ -476,9 +394,6 @@ if (isset($_GET['export_summary'])) {
                     <h3>Clients with Reservations</h3>
                     <div class="filter-controls">
                         <form method="get" class="filter-form">
-                            
-                            
-                            
                             <div class="reservation-sort">
                                 <label for="reservation_sort">Sort:</label>
                                 <select name="reservation_sort" id="reservation_sort" onchange="this.form.submit()">
