@@ -199,3 +199,164 @@
         margin-left: 0;
     }
 }
+
+  @media print {
+            .sidebar, .top-bar, .client-reservation-details, .agent-commission-details, .donut-chart, .print-hide {
+                display: none !important;
+            }
+            
+            .layout-wrapper {
+                padding-left: 0 !important;
+                margin-top: 0 !important;
+            }
+            
+            .summary-reports {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+            
+            .content-area {
+                padding: 20px !important;
+            }
+            
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+        
+        /* Additional styles for time filter */
+        .time-filter {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f8f9fc;
+            padding: 15px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .time-filter label {
+            font-weight: 600;
+            color: #5a5c69;
+        }
+        
+        .time-filter select, .time-filter input {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #d1d3e2;
+            background-color: #fff;
+            font-size: 14px;
+            color: #5a5c69;
+        }
+        
+        .time-filter .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .time-filter button {
+            background-color: #4e73df;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .time-filter button:hover {
+            background-color: #2e59d9;
+        }
+        
+        .hidden-fields {
+            display: none;
+        }
+        
+        .reservation-sort {
+            margin-left: 15px;
+        }
+        
+        .reservation-sort select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #d1d3e2;
+            background-color: #fff;
+            font-size: 14px;
+            color: #5a5c69;
+        }
+
+        /* Sidebar styles */
+        .layout-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #4e73df;
+            color: white;
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar .logo {
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-nav a.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .content-area {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            background-color: #f8f9fc;
+        }
