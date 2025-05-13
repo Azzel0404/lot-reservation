@@ -8,6 +8,7 @@ $agent_filter = isset($_GET['agent_filter']) ? $_GET['agent_filter'] : 'all';
 $time_filter = isset($_GET['time_filter']) ? $_GET['time_filter'] : 'all';
 $selected_month = isset($_GET['month']) ? $_GET['month'] : date('m');
 $selected_year = isset($_GET['year']) ? $_GET['year'] : date('Y');
+$reservation_sort = isset($_GET['reservation_sort']) ? $_GET['reservation_sort'] : 'none';
 
 // Base WHERE clauses
 $reservation_where = "1=1";
@@ -100,7 +101,8 @@ $clients_with_reservation_query = "
         CONCAT(c.firstname, ' ', c.middlename, ' ', c.lastname) AS client_name,
         COUNT(r.reservation_id) AS total_reservations,
         GROUP_CONCAT(l.lot_number SEPARATOR ', ') AS lot_numbers,
-        MAX(r.status) AS status
+        MAX(r.status) AS status,
+        SUM(l.price) AS total_reservation_amount
     FROM reservation r
     JOIN client c ON r.client_id = c.client_id
     JOIN lot l ON r.lot_id = l.lot_id
@@ -109,11 +111,21 @@ $clients_with_reservation_query = "
 
 if ($filter === 'active') {
     $clients_with_reservation_query .= " AND r.status = 'Approved'";
-} elseif ($filter === 'pending') {
-    $clients_with_reservation_query .= " AND r.status = 'Pending'";
 }
 
 $clients_with_reservation_query .= " GROUP BY c.client_id";
+
+// Add sorting for reservations
+if ($reservation_sort === 'highest') {
+    $clients_with_reservation_query .= " ORDER BY total_reservation_amount DESC";
+} elseif ($reservation_sort === 'lowest') {
+    $clients_with_reservation_query .= " ORDER BY total_reservation_amount ASC";
+} elseif ($reservation_sort === 'most') {
+    $clients_with_reservation_query .= " ORDER BY total_reservations DESC";
+} elseif ($reservation_sort === 'least') {
+    $clients_with_reservation_query .= " ORDER BY total_reservations ASC";
+}
+
 $clients_with_reservation_result = mysqli_query($conn, $clients_with_reservation_query);
 if ($clients_with_reservation_result) {
     while ($row = mysqli_fetch_assoc($clients_with_reservation_result)) {
@@ -168,7 +180,6 @@ if (isset($_GET['export_summary'])) {
     fputcsv($output, ['Metric', 'Value'], "\t");
     fputcsv($output, ['Total Reservations', $total_reservations], "\t");
     fputcsv($output, ['Approved Reservations', $approved_reservations], "\t");
-    fputcsv($output, ['Pending Reservations', $total_reservations - $approved_reservations], "\t");
     fputcsv($output, ['Total Users', $total_users], "\t");
     fputcsv($output, ['Total Agents', $total_agents], "\t");
     fputcsv($output, ['Total Clients', $total_clients], "\t");
@@ -230,6 +241,7 @@ if (isset($_GET['export_summary'])) {
             background: #f8f9fc;
             padding: 15px;
             border-radius: 8px;
+            flex-wrap: wrap;
         }
         
         .time-filter label {
@@ -268,6 +280,19 @@ if (isset($_GET['export_summary'])) {
         
         .hidden-fields {
             display: none;
+        }
+        
+        .reservation-sort {
+            margin-left: 15px;
+        }
+        
+        .reservation-sort select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #d1d3e2;
+            background-color: #fff;
+            font-size: 14px;
+            color: #5a5c69;
         }
     </style>
 </head>
@@ -323,6 +348,7 @@ if (isset($_GET['export_summary'])) {
                 <!-- Hidden fields to preserve other filters -->
                 <input type="hidden" name="filter" value="<?php echo $filter; ?>">
                 <input type="hidden" name="agent_filter" value="<?php echo $agent_filter; ?>">
+                <input type="hidden" name="reservation_sort" value="<?php echo $reservation_sort; ?>">
             </form>
 
             <section class="dashboard-metrics print-hide">
@@ -406,8 +432,7 @@ if (isset($_GET['export_summary'])) {
                                 <td>Reservations</td>
                                 <td><?php echo $total_reservations; ?></td>
                                 <td>
-                                    Approved: <?php echo $approved_reservations; ?>,
-                                    Pending: <?php echo $total_reservations - $approved_reservations; ?>
+                                    Approved: <?php echo $approved_reservations; ?>
                                 </td>
                             </tr>
                             <tr>
@@ -451,12 +476,20 @@ if (isset($_GET['export_summary'])) {
                     <h3>Clients with Reservations</h3>
                     <div class="filter-controls">
                         <form method="get" class="filter-form">
-                            <label for="filter">Filter:</label>
-                            <select name="filter" id="filter" onchange="this.form.submit()">
-                                <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All Reservations</option>
-                                <option value="active" <?php echo $filter === 'active' ? 'selected' : ''; ?>>Approved Only</option>
-                                <option value="pending" <?php echo $filter === 'pending' ? 'selected' : ''; ?>>Pending Only</option>
-                            </select>
+                            
+                            
+                            
+                            <div class="reservation-sort">
+                                <label for="reservation_sort">Sort:</label>
+                                <select name="reservation_sort" id="reservation_sort" onchange="this.form.submit()">
+                                    <option value="none" <?php echo $reservation_sort === 'none' ? 'selected' : ''; ?>>Default</option>
+                                    <option value="highest" <?php echo $reservation_sort === 'highest' ? 'selected' : ''; ?>>Highest Amount</option>
+                                    <option value="lowest" <?php echo $reservation_sort === 'lowest' ? 'selected' : ''; ?>>Lowest Amount</option>
+                                    <option value="most" <?php echo $reservation_sort === 'most' ? 'selected' : ''; ?>>Most Reservations</option>
+                                    <option value="least" <?php echo $reservation_sort === 'least' ? 'selected' : ''; ?>>Least Reservations</option>
+                                </select>
+                            </div>
+                            
                             <!-- Hidden fields to preserve time filter -->
                             <input type="hidden" name="time_filter" value="<?php echo $time_filter; ?>">
                             <input type="hidden" name="month" value="<?php echo $selected_month; ?>">
@@ -472,6 +505,7 @@ if (isset($_GET['export_summary'])) {
                                 <tr>
                                     <th>Client Name</th>
                                     <th>Total Reservations</th>
+                                    <th>Total Amount</th>
                                     <th>Status</th>
                                     <th>Reserved Lot Numbers</th>
                                 </tr>
@@ -482,13 +516,14 @@ if (isset($_GET['export_summary'])) {
                                         <tr>
                                             <td><?php echo htmlspecialchars($client['client_name']); ?></td>
                                             <td><?php echo $client['total_reservations']; ?></td>
+                                            <td><?php echo number_format($client['total_reservation_amount'], 2); ?></td>
                                             <td><?php echo $client['status']; ?></td>
                                             <td><?php echo htmlspecialchars($client['lot_numbers']); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4">No reservation data available.</td>
+                                        <td colspan="5">No reservation data available.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -513,6 +548,7 @@ if (isset($_GET['export_summary'])) {
                             <input type="hidden" name="month" value="<?php echo $selected_month; ?>">
                             <input type="hidden" name="year" value="<?php echo $selected_year; ?>">
                             <input type="hidden" name="filter" value="<?php echo $filter; ?>">
+                            <input type="hidden" name="reservation_sort" value="<?php echo $reservation_sort; ?>">
                         </form>
                     </div>
                 </div>
@@ -563,7 +599,11 @@ $(document).ready(function() {
         ],
         responsive: true,
         scrollX: true,
-        fixedHeader: true
+        fixedHeader: true,
+        order: [], // Disable initial sorting to preserve our SQL sorting
+        columnDefs: [
+            { targets: [1, 2], type: 'num' } // Ensure numeric sorting for these columns
+        ]
     });
     
     $('#agentTable').DataTable({
