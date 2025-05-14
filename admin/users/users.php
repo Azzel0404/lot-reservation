@@ -71,14 +71,13 @@ if ($agents_result === false) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
-    <link rel="stylesheet" href="../users/users.css">
+    <link rel="stylesheet" href="users.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="dashboard-container">
-  <!-- Sidebar -->
+    <!-- Sidebar -->
     <aside class="sidebar">
         <h2 class="logo">Reservelt</h2>
         <ul class="sidebar-nav">
